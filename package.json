@@ -1,0 +1,25 @@
+{
+  "name": "vk-game-frontend",
+  "version": "0.0.1",
+  "description": "Frontend for my space game",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Fr1gate/vk-app-frontend.git"
+  },
+  "keywords": [
+    "space",
+    "game",
+    "browser-game",
+    "sci-fi"
+  ],
+  "author": "Pershikov Dmitriy",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/Fr1gate/vk-app-frontend/issues"
+  },
+  "homepage": "https://github.com/Fr1gate/vk-app-frontend#readme"
+}
