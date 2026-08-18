@@ -29,6 +29,7 @@ export async function auth(vkParams: Record<string, unknown>): Promise<boolean> 
   try {
     // Use generated API class
     const response = await api.auth.loginCreate();
+    console.log("auth response", response);
 
     // set player store
     if (response.data?.user) {

@@ -16,6 +16,7 @@
     "generate:types": "swagger-typescript-api generate -p http://localhost:3000/docs/json -o ./src/api/generated -n types.ts --axios --clean-output"
   },
   "dependencies": {
+    "@vkontakte/vk-bridge": "^3.0.2",
     "axios": "^1.19.0",
     "pinia": "^3.0.4",
     "vue": "^3.5.38",
@@ -35,6 +36,7 @@
     "npm-run-all2": "^9.0.2",
     "oxlint": "~1.69.0",
     "prettier": "3.8.4",
+    "sass": "^1.102.0",
     "swagger-typescript-api": "^13.12.6",
     "typescript": "~6.0.0",
     "vite": "^8.0.16",

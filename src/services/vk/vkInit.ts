@@ -1,5 +1,5 @@
 import bridge from "@vkontakte/vk-bridge";
-import { auth } from "@/services/auth/auth.ts";
+import { auth } from "@/services/auth/auth";
 
 const isDevMode = import.meta.env.VITE_DEV_MODE === "true";
 
