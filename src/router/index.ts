@@ -33,9 +33,20 @@ const router = createRouter({
           ],
         },
         {
-          name: ROUTES_NAMES.PLAYER_BASE.HOME,
           path: "player-base",
           component: () => import("@/layouts/PlayerBaseLayout.vue"),
+          children: [
+            {
+              name: ROUTES_NAMES.PLAYER_BASE.HOME,
+              path: "home",
+              component: () => import("@/pages/player_base/PlayerBasePage.vue"),
+            },
+            {
+              name: ROUTES_NAMES.PLAYER_BASE.COLONY,
+              path: "colony/:colonyId",
+              component: () => import("@/pages/player_base/PlayerColonyPage.vue"),
+            },
+          ],
         },
       ],
     },

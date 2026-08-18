@@ -14,7 +14,7 @@ vkInit().then((isRegistered) => {
   console.log("vkinit", isRegistered);
   if (isRegistered) {
     router.push({
-      name: ROUTES_NAMES.AUTH.LOGIN,
+      name: ROUTES_NAMES.PLAYER_BASE.HOME,
     });
   } else {
     router.push({

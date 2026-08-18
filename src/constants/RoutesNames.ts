@@ -7,5 +7,6 @@ export const ROUTES_NAMES = {
   },
   PLAYER_BASE: {
     HOME: "player-base-home",
+    COLONY: "player-base-colony",
   },
 };

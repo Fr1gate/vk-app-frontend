@@ -1,14 +1,14 @@
 <template>
   <div>
-    <h2>Home Base Page</h2>
+    <h2>Colony Page</h2>
     <router-link
       :to="{
-        name: ROUTES_NAMES.PLAYER_BASE.COLONY,
+        name: ROUTES_NAMES.PLAYER_BASE.HOME,
         params: {
           colonyId: 1,
         },
       }"
-      >Go to Colony</router-link
+      >Go to Home Base</router-link
     >
   </div>
 </template>
@@ -16,7 +16,3 @@
 <script setup lang="ts">
 import { ROUTES_NAMES } from "@/constants/RoutesNames";
 </script>
-
-<style scoped lang="scss">
-//
-</style>
