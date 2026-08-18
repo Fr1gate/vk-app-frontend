@@ -1,11 +1,11 @@
 export const ROUTES_NAMES = {
-  HOME: 'home',
+  HOME: "home",
   AUTH: {
-    INDEX: 'auth',
-    LOGIN: 'login',
-    REGISTER: 'register',
+    INDEX: "auth",
+    LOGIN: "login",
+    REGISTER: "register",
   },
   PLAYER_BASE: {
-    HOME: 'player-base-home',
+    HOME: "player-base-home",
   },
-}
+};
