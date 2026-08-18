@@ -13,7 +13,7 @@
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache",
     "format": "prettier --write --experimental-cli src/",
-    "generate:types": "swagger-typescript-api generate -p http://localhost:3000/docs/json -o ./src/api/generated -n types.ts --axios --clean-output"
+    "generate:api": "swagger-typescript-api generate -p http://localhost:3000/docs/json -o ./src/api/generated -n types.ts --axios --clean-output"
   },
   "dependencies": {
     "@vkontakte/vk-bridge": "^3.0.2",

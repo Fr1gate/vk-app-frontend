@@ -8,17 +8,25 @@
 
 <script setup lang="ts">
 import { api } from "@/api";
+import { ROUTES_NAMES } from "@/constants/RoutesNames";
+import router from "@/router";
+import { usePlayerStore } from "@/stores/player";
 import { reactive } from "vue";
 
 const form = reactive({
   name: "",
 });
 
+const playerStore = usePlayerStore();
+
 function handleSubmit() {
   api.auth
     .registerCreate(form)
     .then(({ data }) => {
-      console.log("success", data);
+      playerStore.player = data.user;
+      router.push({
+        name: ROUTES_NAMES.PLAYER_BASE.HOME,
+      });
     })
     .catch((err) => {
       console.error(err);

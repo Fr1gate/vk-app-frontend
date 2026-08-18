@@ -1,4 +1,5 @@
 import { ROUTES_NAMES } from "@/constants/RoutesNames";
+import { usePlayerStore } from "@/stores/player";
 import { createRouter, createWebHistory } from "vue-router";
 
 const router = createRouter({
@@ -51,6 +52,18 @@ const router = createRouter({
       ],
     },
   ],
+});
+
+router.beforeEach((to) => {
+  if (!usePlayerStore().player) {
+    // not authed
+    console.log("intercepted to", to);
+    if (!to.path.match(/^\/auth/)) {
+      return {
+        name: ROUTES_NAMES.AUTH.INDEX,
+      };
+    }
+  }
 });
 
 export default router;

@@ -10,12 +10,19 @@
  * ---------------------------------------------------------------
  */
 
-import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, HeadersDefaults, ResponseType } from "axios";
+import type {
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+  HeadersDefaults,
+  ResponseType,
+} from "axios";
 import axios from "axios";
 
 export type QueryParamsType = Record<string | number, any>;
 
-export interface FullRequestParams extends Omit<AxiosRequestConfig, "data" | "params" | "url" | "responseType"> {
+export interface FullRequestParams
+  extends Omit<AxiosRequestConfig, "data" | "params" | "url" | "responseType"> {
   /** set parameter to `true` for call `securityWorker` for this request */
   secure?: boolean;
   /** request path */
@@ -30,10 +37,16 @@ export interface FullRequestParams extends Omit<AxiosRequestConfig, "data" | "pa
   body?: unknown;
 }
 
-export type RequestParams = Omit<FullRequestParams, "body" | "method" | "query" | "path">;
+export type RequestParams = Omit<
+  FullRequestParams,
+  "body" | "method" | "query" | "path"
+>;
 
-export interface ApiConfig<SecurityDataType = unknown> extends Omit<AxiosRequestConfig, "data" | "cancelToken"> {
-  securityWorker?: (securityData: SecurityDataType | null) => Promise<AxiosRequestConfig | void> | AxiosRequestConfig | void;
+export interface ApiConfig<SecurityDataType = unknown>
+  extends Omit<AxiosRequestConfig, "data" | "cancelToken"> {
+  securityWorker?: (
+    securityData: SecurityDataType | null,
+  ) => Promise<AxiosRequestConfig | void> | AxiosRequestConfig | void;
   secure?: boolean;
   format?: ResponseType;
 }
@@ -53,7 +66,12 @@ export class HttpClient<SecurityDataType = unknown> {
   private secure?: boolean;
   private format?: ResponseType;
 
-  constructor({ securityWorker, secure, format, ...axiosConfig }: ApiConfig<SecurityDataType> = {}) {
+  constructor({
+    securityWorker,
+    secure,
+    format,
+    ...axiosConfig
+  }: ApiConfig<SecurityDataType> = {}) {
     this.instance = axios.create({
       ...axiosConfig,
       baseURL: axiosConfig.baseURL || "http://localhost:3000",
@@ -67,7 +85,10 @@ export class HttpClient<SecurityDataType = unknown> {
     this.securityData = data;
   };
 
-  protected mergeRequestParams(params1: AxiosRequestConfig, params2?: AxiosRequestConfig): AxiosRequestConfig {
+  protected mergeRequestParams(
+    params1: AxiosRequestConfig,
+    params2?: AxiosRequestConfig,
+  ): AxiosRequestConfig {
     const method = params1.method || (params2 && params2.method);
 
     return {
@@ -75,7 +96,11 @@ export class HttpClient<SecurityDataType = unknown> {
       ...params1,
       ...(params2 || {}),
       headers: {
-        ...((method && this.instance.defaults.headers[method.toLowerCase() as keyof HeadersDefaults]) || {}),
+        ...((method &&
+          this.instance.defaults.headers[
+            method.toLowerCase() as keyof HeadersDefaults
+          ]) ||
+          {}),
         ...(params1.headers || {}),
         ...((params2 && params2.headers) || {}),
       },
@@ -96,11 +121,15 @@ export class HttpClient<SecurityDataType = unknown> {
     }
     return Object.keys(input || {}).reduce((formData, key) => {
       const property = input[key];
-      const propertyContent: any[] = property instanceof Array ? property : [property];
+      const propertyContent: any[] =
+        property instanceof Array ? property : [property];
 
       for (const formItem of propertyContent) {
         const isFileType = formItem instanceof Blob || formItem instanceof File;
-        formData.append(key, isFileType ? formItem : this.stringifyFormItem(formItem));
+        formData.append(
+          key,
+          isFileType ? formItem : this.stringifyFormItem(formItem),
+        );
       }
 
       return formData;
@@ -117,15 +146,28 @@ export class HttpClient<SecurityDataType = unknown> {
     ...params
   }: FullRequestParams): Promise<AxiosResponse<T>> => {
     const secureParams =
-      ((typeof secure === "boolean" ? secure : this.secure) && this.securityWorker && (await this.securityWorker(this.securityData))) || {};
+      ((typeof secure === "boolean" ? secure : this.secure) &&
+        this.securityWorker &&
+        (await this.securityWorker(this.securityData))) ||
+      {};
     const requestParams = this.mergeRequestParams(params, secureParams);
     const responseFormat = format || this.format || undefined;
 
-    if (type === ContentType.FormData && body && body !== null && typeof body === "object") {
+    if (
+      type === ContentType.FormData &&
+      body &&
+      body !== null &&
+      typeof body === "object"
+    ) {
       body = this.createFormData(body as Record<string, unknown>);
     }
 
-    if (type === ContentType.Text && body && body !== null && typeof body !== "string") {
+    if (
+      type === ContentType.Text &&
+      body &&
+      body !== null &&
+      typeof body !== "string"
+    ) {
       body = JSON.stringify(body);
     }
 
@@ -176,7 +218,9 @@ export class HttpClient<SecurityDataType = unknown> {
  *
  * Здания базы работают циклами (добыча и переработка). Производство доначисляется лениво: при каждом чтении базы закрываются целые прошедшие циклы и результат пишется в склад. Ставок «доход в час» и посекундного начисления на сервере нет — клиент узнаёт о производстве по изменившимся запасам. Деньги базовое производство не приносит: они поступают из грантов, миссий и контрактов.
  */
-export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
+export class Api<
+  SecurityDataType extends unknown,
+> extends HttpClient<SecurityDataType> {
   test = {
     /**
      * @description Simple ping endpoint to test server connectivity. No authentication required.
@@ -210,10 +254,10 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
           success?: boolean;
           message?: string;
           user?: {
-            id?: string;
-            vk_id?: string;
-            name?: string;
-            earth_base_id?: number;
+            id: string;
+            vk_id: string;
+            name: string;
+            earth_base_id: number;
           };
         },
         {
@@ -249,9 +293,10 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
           success?: boolean;
           message?: string;
           user?: {
-            id?: string;
-            vk_id?: string;
-            name?: string;
+            id: string;
+            vk_id: string;
+            name: string;
+            earth_base_id: number;
           };
         },
         {
@@ -402,7 +447,25 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/bases/{siteId}
      * @secure
      */
-    basesDetail: (siteId: string, params: RequestParams = {}) =>
+    basesDetail: (
+      siteId:
+        | "site_earth"
+        | "site_leo"
+        | "site_mars_arcadia"
+        | "site_mars_deuteronilus"
+        | "site_mars_marineris"
+        | "site_mars_polar"
+        | "site_mars_tharsis"
+        | "site_moon_highlands"
+        | "site_moon_meteorfield"
+        | "site_moon_procellarum"
+        | "site_moon_shackleton"
+        | "site_moon_tranquillitatis"
+        | "site_psyche"
+        | "site_venus_cloud"
+        | "site_venus_orbit",
+      params: RequestParams = {},
+    ) =>
       this.request<
         {
           id?: number;
@@ -526,7 +589,25 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/bases/{siteId}/open
      * @secure
      */
-    openCreate: (siteId: string, params: RequestParams = {}) =>
+    openCreate: (
+      siteId:
+        | "site_earth"
+        | "site_leo"
+        | "site_mars_arcadia"
+        | "site_mars_deuteronilus"
+        | "site_mars_marineris"
+        | "site_mars_polar"
+        | "site_mars_tharsis"
+        | "site_moon_highlands"
+        | "site_moon_meteorfield"
+        | "site_moon_procellarum"
+        | "site_moon_shackleton"
+        | "site_moon_tranquillitatis"
+        | "site_psyche"
+        | "site_venus_cloud"
+        | "site_venus_orbit",
+      params: RequestParams = {},
+    ) =>
       this.request<
         {
           id?: number;
@@ -553,7 +634,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/bases/{siteId}/buildings/{buildingId}/upgrade
      * @secure
      */
-    buildingsUpgradeCreate: (siteId: string, buildingId: string, params: RequestParams = {}) =>
+    buildingsUpgradeCreate: (
+      siteId: string,
+      buildingId: string,
+      params: RequestParams = {},
+    ) =>
       this.request<
         {
           id?: number;
@@ -588,7 +673,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/bases/{siteId}/facilities/{buildingId}
      * @secure
      */
-    facilitiesDetail: (siteId: string, buildingId: string, params: RequestParams = {}) =>
+    facilitiesDetail: (
+      siteId: string,
+      buildingId: string,
+      params: RequestParams = {},
+    ) =>
       this.request<
         Record<string, any>,
         {
@@ -683,7 +772,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/bases/{siteId}/shipyard/{buildingId}
      * @secure
      */
-    shipyardDetail: (siteId: string, buildingId: string, params: RequestParams = {}) =>
+    shipyardDetail: (
+      siteId: string,
+      buildingId: string,
+      params: RequestParams = {},
+    ) =>
       this.request<
         Record<string, any>,
         {
@@ -748,7 +841,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/bases/{siteId}/launchpad/{buildingId}
      * @secure
      */
-    launchpadDetail: (siteId: string, buildingId: string, params: RequestParams = {}) =>
+    launchpadDetail: (
+      siteId: string,
+      buildingId: string,
+      params: RequestParams = {},
+    ) =>
       this.request<
         Record<string, any>,
         {

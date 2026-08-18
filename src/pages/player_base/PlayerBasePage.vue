@@ -1,20 +1,28 @@
 <template>
   <div>
     <h2>Home Base Page</h2>
-    <router-link
-      :to="{
-        name: ROUTES_NAMES.PLAYER_BASE.COLONY,
-        params: {
-          colonyId: 1,
-        },
-      }"
-      >Go to Colony</router-link
-    >
+    <h3 v-if="loading">LOADING</h3>
+    <pre>{{ JSON.stringify(base, null, 2) }}</pre>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ROUTES_NAMES } from "@/constants/RoutesNames";
+import { api, type ApiData } from "@/api";
+import { usePlayerStore } from "@/stores/player";
+import { ref } from "vue";
+
+const playerStore = usePlayerStore();
+
+const base = ref<ApiData<["bases", "basesDetail"]> | null>(null);
+
+const loading = ref(true);
+
+console.log("player in store", playerStore.player);
+
+api.bases.basesDetail("site_earth").then(({ data }) => {
+  base.value = data;
+  loading.value = false;
+});
 </script>
 
 <style scoped lang="scss">
