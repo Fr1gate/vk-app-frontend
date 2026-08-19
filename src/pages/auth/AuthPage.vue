@@ -1,10 +1,11 @@
 <template>
   <div>
-    <h1>Auth Page</h1>
+    <UISpinner />
   </div>
 </template>
 
 <script setup lang="ts">
+import UISpinner from "@/components/ui/UISpinner.vue";
 import { ROUTES_NAMES } from "@/constants/RoutesNames";
 import router from "@/router";
 import { vkInit } from "@/services/vk/vkInit";

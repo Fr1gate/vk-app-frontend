@@ -1,11 +1,14 @@
+@use "./fonts";
 @use "./variables";
 
 * {
   margin: 0;
   padding: 0;
   list-style: none;
+  box-sizing: border-box;
 }
 
 body {
-  // background-color: black;
+  font-family: Inter, sans-serif;
+  color: var(--font-primary);
 }

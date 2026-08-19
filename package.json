@@ -16,11 +16,13 @@
     "generate:api": "swagger-typescript-api generate -p http://localhost:3000/docs/json -o ./src/api/generated -n types.ts --axios --clean-output"
   },
   "dependencies": {
+    "@lucide/vue": "^1.33.0",
     "@vkontakte/vk-bridge": "^3.0.2",
     "axios": "^1.19.0",
     "pinia": "^3.0.4",
     "vue": "^3.5.38",
-    "vue-router": "^5.1.0"
+    "vue-router": "^5.1.0",
+    "vue3-spinners": "^1.3.3"
   },
   "devDependencies": {
     "@tsconfig/node24": "^24.0.4",
