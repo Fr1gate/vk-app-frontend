@@ -1,48 +1,36 @@
-# .
+# Внеземелье — VK Mini App
 
-This template should help get you started developing with Vue 3 in Vite.
+Космическая стратегия-симулятор. Игрок начинает с одной базы на Земле и растёт в индустриальную империю: колонизирует планеты солнечной системы, осваивает астероиды, собирает свои корабли, захватывает корабли других игроков, объединяется с другими игроками.
 
-## Recommended IDE Setup
+**Стек:** Vue 3 · TypeScript · Vite · Pinia · SCSS · VK Bridge
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Внимание
 
-## Recommended Browser Setup
+Этот репозиторий - лишь часть проекта. Запустить без бекенда не получится.
+Репозиторий открыт исключительно ради демонстрации навыков.
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+## Локальная разработка
 
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
+```bash
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+Создайте `.env`:
 
-```sh
-npm run dev
+```
+VITE_API_URL=http://localhost:3000
+VITE_DEV_MODE=true
 ```
 
-### Type-Check, Compile and Minify for Production
+В `VITE_DEV_MODE=true` фронтенд не дёргает VK Bridge: подставляет мок launch params (`dev_user_1`) и отправляет их бэкенду, который в DEV_MODE не проверяет подпись. **Требуется локально запущенный бэкенд** (закрытый репозиторий) с `DEV_MODE=true` и применёнными миграциями.
 
-```sh
-npm run build
-```
+## Скрипты
 
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+| Команда                  | Что делает                                                               |
+| ------------------------ | ------------------------------------------------------------------------ |
+| `npm run dev`            | Vite dev-сервер                                                          |
+| `npm run build`          | vue-tsc + сборка                                                         |
+| `npm run type-check`     | проверка типов                                                           |
+| `npm run lint`           | oxlint + eslint                                                          |
+| `npm run test:run`       | vitest (один прогон)                                                     |
+| `npm run generate:types` | регенерация API-клиента из OpenAPI бэкенда (нужен живой сервер на :3000) |
