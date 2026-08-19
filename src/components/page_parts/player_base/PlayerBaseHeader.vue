@@ -6,19 +6,19 @@
     <div class="player-base-header__center">
       <div class="player-base-header__resource">
         <div class="player-base-header__resource-icon">
-          <RussianRuble :size="18" />
+          <RussianRuble :size="iconSize" />
         </div>
         <div class="player-base-header__resource-value">12480</div>
       </div>
       <div class="player-base-header__resource">
         <div class="player-base-header__resource-icon">
-          <Droplets :size="18" />
+          <Droplets :size="iconSize" />
         </div>
         <div class="player-base-header__resource-value">940 т</div>
       </div>
       <div class="player-base-header__resource">
         <div class="player-base-header__resource-icon">
-          <Zap :size="18" />
+          <Zap :size="iconSize" />
         </div>
         <div class="player-base-header__resource-value">+24 МВт</div>
       </div>
@@ -31,6 +31,16 @@
 
 <script lang="ts" setup>
 import { RussianRuble, Droplets, Zap } from "@lucide/vue";
+
+interface Props {
+  money: number;
+  fuel: number;
+  energy: number;
+}
+
+const iconSize = 18;
+
+defineProps<Props>();
 </script>
 
 <style lang="scss" scoped>
