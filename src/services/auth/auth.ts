@@ -3,11 +3,6 @@ import { api, setHeaders } from "@/api";
 
 const isDevMode = import.meta.env.VITE_DEV_MODE === "true";
 
-/**
- *
- * @param vkParams VK launch params
- * @returns true if user is registered, false otherwise
- */
 export async function auth(vkParams: Record<string, unknown>): Promise<boolean> {
   const playerStore = usePlayerStore();
 
@@ -26,18 +21,14 @@ export async function auth(vkParams: Record<string, unknown>): Promise<boolean> 
     });
   }
 
-  try {
-    // Use generated API class
-    const response = await api.auth.loginCreate();
-    console.log("auth response", response);
+  // Use generated API class
+  const response = await api.auth.loginCreate();
 
-    // set player store
-    if (response.data?.user) {
-      playerStore.player = response.data.user;
-      return true;
-    }
-    return false;
-  } catch {
-    return false;
+  // set player store
+  if (response.data?.user) {
+    playerStore.player = response.data.user;
+    return true;
   }
+
+  return false;
 }

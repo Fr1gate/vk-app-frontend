@@ -8,28 +8,23 @@ const router = createRouter({
     {
       path: "/",
       name: ROUTES_NAMES.HOME,
-      redirect: {
-        name: ROUTES_NAMES.AUTH.INDEX,
-      },
+      // redirect: {
+      //   name: ROUTES_NAMES.SYSTEM.LOADING,
+      // },
       children: [
         {
-          path: "auth",
+          path: "system",
           component: () => import("@/layouts/SystemLayout.vue"),
           children: [
             {
-              name: ROUTES_NAMES.AUTH.INDEX,
-              path: "",
-              component: () => import("@/pages/auth/AuthPage.vue"),
-            },
-            {
-              name: ROUTES_NAMES.AUTH.LOGIN,
-              path: "login",
-              component: () => import("@/pages/auth/LoginPage.vue"),
-            },
-            {
-              name: ROUTES_NAMES.AUTH.REGISTER,
+              name: ROUTES_NAMES.SYSTEM.REGISTER,
               path: "register",
               component: () => import("@/pages/auth/RegistrationPage.vue"),
+            },
+            {
+              name: ROUTES_NAMES.SYSTEM.LOADING,
+              path: "loading",
+              component: () => import("@/pages/auth/LoadingPage.vue"),
             },
           ],
         },
@@ -56,11 +51,9 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   if (!usePlayerStore().player) {
-    // not authed
-    console.log("intercepted to", to);
-    if (!to.path.match(/^\/auth/)) {
+    if (!to.path.match(/^\/system/)) {
       return {
-        name: ROUTES_NAMES.AUTH.INDEX,
+        name: ROUTES_NAMES.SYSTEM.LOADING,
       };
     }
   }

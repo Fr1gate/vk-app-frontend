@@ -29,6 +29,13 @@ const form = reactive({
 
 const playerStore = usePlayerStore();
 
+if (playerStore.player) {
+  // user is already authorized and open this page by mistake
+  router.push({
+    name: ROUTES_NAMES.PLAYER_BASE.HOME,
+  });
+}
+
 function handleSubmit() {
   api.auth
     .registerCreate(form)

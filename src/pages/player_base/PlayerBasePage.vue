@@ -17,8 +17,6 @@ const base = ref<ApiData<["bases", "basesDetail"]> | null>(null);
 
 const loading = ref(true);
 
-console.log("player in store", playerStore.player);
-
 api.bases.basesDetail("site_earth").then(({ data }) => {
   base.value = data;
   loading.value = false;

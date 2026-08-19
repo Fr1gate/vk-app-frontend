@@ -1,8 +1,7 @@
 export const ROUTES_NAMES = {
   HOME: "home",
-  AUTH: {
-    INDEX: "auth",
-    LOGIN: "login",
+  SYSTEM: {
+    LOADING: "loading",
     REGISTER: "register",
   },
   PLAYER_BASE: {
