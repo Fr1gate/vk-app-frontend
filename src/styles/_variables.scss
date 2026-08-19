@@ -1,0 +1,65 @@
+:root {
+  /* Цвета — акцент */
+  --accent-100: #7ab0f0;
+  --accent-200: #3a6cc0;
+  --accent-300: #1a3070;
+
+  /* Цвета — фон */
+  --bg-base: #15171f;
+  --bg-deep: #0b0c12;
+  --bg-elevated: #262830;
+  --bg-overlay: #000000cc;
+  --bg-surface: #1f1f26;
+
+  /* Цвета — текст */
+  --font-primary: #ffffff;
+  --font-secondary: #a0a3ad;
+  --font-muted: #696c76;
+  --font-disabled: #4d4f5c;
+  --font-inverse: #1f1f26;
+
+  /* Цвета — серебро (металл) */
+  --silver-100: #fafafc;
+  --silver-200: #dbdee6;
+  --silver-300: #a0a3ad;
+  --silver-400: #696c76;
+  --silver-500: #4d4f5c;
+  --silver-700: #3d4050;
+  --silver-800: #2a2c38;
+  --silver-900: #1a1b24;
+
+  /* Цвета — статусы */
+  --status-error: #e54a3f;
+  --status-ok: #ffffff;
+  --status-warn: #f5c64a;
+
+  /* Типографика */
+  --font-family: "Inter";
+  --font-xs: 10px;
+  --font-sm: 12px;
+  --font-md: 14px;
+  --font-lg: 18px;
+  --font-xl: 24px;
+  --font-2xl: 32px;
+
+  /* Скругления */
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-pill: 999px;
+
+  /* Отступы (шкала) */
+  --space-1: 2px;
+  --space-2: 4px;
+  --space-3: 6px;
+  --space-4: 8px;
+  --space-5: 12px;
+  --space-6: 16px;
+  --space-7: 20px;
+  --space-8: 24px;
+  --space-9: 32px;
+
+  /* Обводки */
+  --stroke-thin: 1px;
+  --stroke-thick: 2px;
+}
