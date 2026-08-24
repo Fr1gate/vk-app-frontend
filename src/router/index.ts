@@ -1,5 +1,5 @@
 import { ROUTES_NAMES } from "@/constants/RoutesNames";
-import { usePlayerStore } from "@/stores/player";
+import { usePlayerStore } from "@/stores/playerStore";
 import { createRouter, createWebHistory } from "vue-router";
 
 const router = createRouter({
@@ -17,14 +17,19 @@ const router = createRouter({
           component: () => import("@/layouts/SystemLayout.vue"),
           children: [
             {
+              name: ROUTES_NAMES.SYSTEM.ERROR,
+              path: "error",
+              component: () => import("@/pages/system/ErrorPage.vue"),
+            },
+            {
               name: ROUTES_NAMES.SYSTEM.REGISTER,
               path: "register",
-              component: () => import("@/pages/auth/RegistrationPage.vue"),
+              component: () => import("@/pages/system/RegistrationPage.vue"),
             },
             {
               name: ROUTES_NAMES.SYSTEM.LOADING,
               path: "loading",
-              component: () => import("@/pages/auth/LoadingPage.vue"),
+              component: () => import("@/pages/system/LoadingPage.vue"),
             },
           ],
         },

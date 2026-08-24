@@ -28,6 +28,24 @@
   --silver-800: #2a2c38;
   --silver-900: #1a1b24;
 
+  /* Градиенты */
+  --gradient-silver: linear-gradient(
+    180deg,
+    var(--silver-200) 0%,
+    var(--silver-100) 25%,
+    var(--silver-200) 45%,
+    var(--silver-500) 75%,
+    var(--silver-200) 100%
+  );
+  --gradient-accent: linear-gradient(
+    180deg,
+    var(--accent-200) 0%,
+    var(--accent-100) 35%,
+    var(--accent-200) 55%,
+    var(--accent-300) 85%,
+    var(--accent-200) 100%
+  );
+
   /* Цвета — статусы */
   --status-error: #e54a3f;
   --status-ok: #ffffff;

@@ -9,18 +9,25 @@ import { ROUTES_NAMES } from "@/constants/RoutesNames";
 import router from "@/router";
 import { vkInit } from "@/services/vk/vkInit";
 import { ref } from "vue";
+import { useErrorStore } from "./stores/errorStore";
+
+const { handleError } = useErrorStore();
 
 const loading = ref(true);
-vkInit().then((isRegistered) => {
-  loading.value = false;
-  if (isRegistered) {
-    router.push({
-      name: ROUTES_NAMES.PLAYER_BASE.HOME,
-    });
+vkInit().then(({ isError, loggedIn }) => {
+  if (isError) {
+    handleError(`Auth Error`);
   } else {
-    router.push({
-      name: ROUTES_NAMES.SYSTEM.REGISTER,
-    });
+    loading.value = false;
+    if (loggedIn) {
+      router.push({
+        name: ROUTES_NAMES.PLAYER_BASE.HOME,
+      });
+    } else {
+      router.push({
+        name: ROUTES_NAMES.SYSTEM.REGISTER,
+      });
+    }
   }
 });
 </script>

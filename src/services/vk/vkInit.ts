@@ -1,5 +1,5 @@
 import bridge from "@vkontakte/vk-bridge";
-import { auth } from "@/services/auth/auth";
+import { auth, type AuthReturnValue } from "@/services/auth/auth";
 
 const isDevMode = import.meta.env.VITE_DEV_MODE === "true";
 
@@ -7,7 +7,7 @@ const isDevMode = import.meta.env.VITE_DEV_MODE === "true";
  *
  * @returns true if user is registered, false otherwise
  */
-export async function vkInit() {
+export async function vkInit(): Promise<AuthReturnValue> {
   // DEV MODE: Bypass VK bridge and use mock data
   if (isDevMode) {
     const mockVkParams = {
@@ -42,7 +42,7 @@ export async function vkInit() {
         case "VKWebAppInitResult": {
           if (event.detail.data.result) {
             bridge.send("VKWebAppGetLaunchParams");
-            bridge.send("VKWebAppResizeWindow", { width: 1000, height: 750 });
+            bridge.send("VKWebAppResizeWindow", { width: 1000, height: 450 });
           } else {
             return;
           }
@@ -51,8 +51,8 @@ export async function vkInit() {
         case "VKWebAppGetLaunchParamsResult": {
           // auth
           const vkParams = event.detail.data;
-          auth(vkParams).then((isRegistered) => {
-            resolve(isRegistered);
+          auth(vkParams).then((authResult) => {
+            resolve(authResult);
           });
 
           break;

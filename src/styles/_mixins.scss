@@ -1,0 +1,6 @@
+@mixin gradient-border($fill: var(--bg-surface), $gradient: var(--gradient-silver), $width: 1px) {
+  border: $width solid transparent;
+  background:
+    linear-gradient($fill, $fill) padding-box,
+    $gradient border-box;
+}

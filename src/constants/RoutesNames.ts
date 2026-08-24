@@ -3,6 +3,7 @@ export const ROUTES_NAMES = {
   SYSTEM: {
     LOADING: "loading",
     REGISTER: "register",
+    ERROR: "error",
   },
   PLAYER_BASE: {
     HOME: "player-base-home",

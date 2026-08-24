@@ -16,7 +16,7 @@
 import { api } from "@/api";
 import { ROUTES_NAMES } from "@/constants/RoutesNames";
 import router from "@/router";
-import { usePlayerStore } from "@/stores/player";
+import { usePlayerStore } from "@/stores/playerStore";
 import { reactive } from "vue";
 import UILogo from "@/components/ui/UILogo.vue";
 import UIInputText from "@/components/ui/UIInputText.vue";

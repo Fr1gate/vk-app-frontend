@@ -1,7 +1,7 @@
 <template>
   <div class="player-base">
     <UILoaderModal v-if="loading" />
-    <PlayerBaseHeader />
+    <PlayerBaseHeader :energy="1" :fuel="1" :money="1" />
     <div class="player-base__body">
       <div class="player-base__buildings-carousel"></div>
     </div>
@@ -12,10 +12,7 @@
 import { api, type ApiData } from "@/api";
 import PlayerBaseHeader from "@/components/page_parts/player_base/PlayerBaseHeader.vue";
 import UILoaderModal from "@/components/ui/UILoaderModal.vue";
-import { usePlayerStore } from "@/stores/player";
 import { ref } from "vue";
-
-const playerStore = usePlayerStore();
 
 const base = ref<ApiData<["bases", "basesDetail"]> | null>(null);
 

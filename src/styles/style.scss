@@ -1,5 +1,6 @@
 @use "./fonts";
 @use "./variables";
+@use "./mixins";
 
 * {
   margin: 0;
@@ -12,4 +13,29 @@ body {
   font-family: Inter, sans-serif;
   color: var(--font-primary);
   background-color: black;
+}
+
+// SCROLL STYLES
+
+* {
+  // Firefox
+  scrollbar-width: thin;
+  scrollbar-color: var(--silver-700) transparent;
+
+  // WebKit
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--silver-700);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--silver-500);
+  }
 }
