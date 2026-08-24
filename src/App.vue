@@ -8,17 +8,10 @@
 import { ROUTES_NAMES } from "@/constants/RoutesNames";
 import router from "@/router";
 import { vkInit } from "@/services/vk/vkInit";
-import { ref } from "vue";
-import { useErrorStore } from "./stores/errorStore";
+import { onMounted } from "vue";
 
-const { handleError } = useErrorStore();
-
-const loading = ref(true);
-vkInit().then(({ isError, loggedIn }) => {
-  if (isError) {
-    handleError(`Auth Error`);
-  } else {
-    loading.value = false;
+onMounted(() => {
+  vkInit().then(({ loggedIn }) => {
     if (loggedIn) {
       router.push({
         name: ROUTES_NAMES.PLAYER_BASE.HOME,
@@ -28,7 +21,7 @@ vkInit().then(({ isError, loggedIn }) => {
         name: ROUTES_NAMES.SYSTEM.REGISTER,
       });
     }
-  }
+  });
 });
 </script>
 

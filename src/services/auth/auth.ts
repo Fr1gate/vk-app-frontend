@@ -1,12 +1,10 @@
 import { usePlayerStore } from "@/stores/playerStore";
-import { api, setHeaders } from "@/api";
-import axios from "axios";
+import { api, ApiError, setHeaders } from "@/api";
 
 const isDevMode = import.meta.env.VITE_DEV_MODE === "true";
 
 export interface AuthReturnValue {
   loggedIn: boolean;
-  isError: boolean;
 }
 
 export async function auth(vkParams: Record<string, unknown>): Promise<AuthReturnValue> {
@@ -27,38 +25,18 @@ export async function auth(vkParams: Record<string, unknown>): Promise<AuthRetur
     });
   }
 
-  try {
-    // Use generated API class
-    const response = await api.auth.loginCreate();
+  // Use generated API class
+  const response = await api.auth.loginCreate();
 
-    // set player store
-    if (response.data?.user) {
-      playerStore.player = response.data.user;
-      return {
-        loggedIn: true,
-        isError: false,
-      };
-    }
-
+  // set player store
+  if (response.data?.user) {
+    playerStore.player = response.data.user;
     return {
-      loggedIn: false,
-      isError: false,
-    };
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      if (error.status === 401) {
-        // NOT AUTHORIZED
-        return {
-          loggedIn: false,
-          isError: false,
-        };
-      }
-    }
-    console.error("Login error");
-    console.error(error);
-    return {
-      loggedIn: false,
-      isError: true,
+      loggedIn: true,
     };
   }
+
+  return {
+    loggedIn: false,
+  };
 }

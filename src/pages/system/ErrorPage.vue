@@ -27,8 +27,13 @@ import { Copy } from "@lucide/vue";
 
 const { storedError } = useErrorStore();
 
+if (!storedError) {
+  // no error - user somehow navigated to this page himself. Push him to the Root
+  handleReload();
+}
+
 function handleReload() {
-  // not using router, because I need window to reload
+  // not using router, because I need the window to reload
   location.href = "/";
 }
 
