@@ -362,8 +362,10 @@ export class Api<
             next_level_cost?: Record<string, number>;
             next_level_minutes?: number;
           }[];
-          /** Ресурсы на базе: res_* → килограммы (res_money — деньги) */
+          /** Ресурсы на базе без топлива: res_* → килограммы (res_money — деньги) */
           resources?: Record<string, number>;
+          /** Топливные ресурсы отдельной группой: res_* → килограммы (только isFuelType) */
+          fuel?: Record<string, number>;
           /** Готовые модули на складе: mod_* → штуки */
           modules?: Record<string, number>;
           /** Склады по агрегатным состояниям. Корзина ресурса — его `state` из баланса (для этого и построен склад/депо); `resource_phase_here` — справка, во что вещество превращается на этой точке. Излишек сверх вместимости не блокирует производство, а сгорает раз в `overflow_tick_minutes`. */
@@ -504,8 +506,10 @@ export class Api<
             next_level_cost?: Record<string, number>;
             next_level_minutes?: number;
           }[];
-          /** Ресурсы на базе: res_* → килограммы (res_money — деньги) */
+          /** Ресурсы на базе без топлива: res_* → килограммы (res_money — деньги) */
           resources?: Record<string, number>;
+          /** Топливные ресурсы отдельной группой: res_* → килограммы (только isFuelType) */
+          fuel?: Record<string, number>;
           /** Готовые модули на складе: mod_* → штуки */
           modules?: Record<string, number>;
           /** Склады по агрегатным состояниям. Корзина ресурса — его `state` из баланса (для этого и построен склад/депо); `resource_phase_here` — справка, во что вещество превращается на этой точке. Излишек сверх вместимости не блокирует производство, а сгорает раз в `overflow_tick_minutes`. */
@@ -1265,9 +1269,11 @@ export class Api<
   };
   solarSystem = {
     /**
-     * No description
+     * @description Положения планет, Луны и орбитальных станций на момент t (игровое время ускорено). Публичный.
      *
+     * @tags solar-system
      * @name StateList
+     * @summary Состояние Солнечной системы
      * @request GET:/solar-system/state
      * @secure
      */
@@ -1280,9 +1286,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description Мягкое окно запуска, Δv маршрута и длительность перелёта между телами. Публичный.
      *
+     * @tags solar-system
      * @name FlightPlanList
+     * @summary План перелёта
      * @request GET:/solar-system/flight-plan
      * @secure
      */
@@ -1295,9 +1303,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description Корабли игрока в пути и их позиции (ленивый расчёт на лету).
      *
+     * @tags solar-system
      * @name ShipsList
+     * @summary Корабли игрока в полёте
      * @request GET:/solar-system/ships
      * @secure
      */
@@ -1310,9 +1320,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description Наведение перехватчика на корабль-цель. Бой разрешится лениво при встрече.
      *
+     * @tags solar-system
      * @name InterceptCreate
+     * @summary Наведение перехватчика
      * @request POST:/solar-system/intercept
      * @secure
      */
@@ -1325,9 +1337,11 @@ export class Api<
       }),
 
     /**
-     * No description
+     * @description Бои игрока: как перехватчик и как цель (отчёты разрешённых боёв).
      *
+     * @tags solar-system
      * @name BattlesList
+     * @summary Мои бои
      * @request GET:/solar-system/battles
      * @secure
      */
