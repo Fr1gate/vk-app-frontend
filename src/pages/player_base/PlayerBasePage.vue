@@ -1,5 +1,5 @@
 <template>
-  <div class="player-base">
+  <div class="player-base" data-theme="earth">
     <UILoaderModal v-if="loading" />
     <PlayerBaseHeader :energy="1" :fuel="1" :money="1" />
     <div class="player-base__body">
@@ -30,15 +30,14 @@ api.bases.basesDetail("site_earth").then(({ data }) => {
   width: 100vw;
   display: flex;
   flex-direction: column;
+  background-image: url("@/assets/bg/bases/bg-earth.webp");
+  background-size: cover;
 
   &__header {
     height: 30px;
-    background-color: var(--bg-elevated);
   }
 
   &__body {
-    background-image: url("@/assets/bg/bases/bg-earth.webp");
-    background-size: cover;
     flex-grow: 1;
   }
 }

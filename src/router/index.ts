@@ -8,9 +8,6 @@ const router = createRouter({
     {
       path: "/",
       name: ROUTES_NAMES.HOME,
-      // redirect: {
-      //   name: ROUTES_NAMES.SYSTEM.LOADING,
-      // },
       children: [
         {
           path: "system",

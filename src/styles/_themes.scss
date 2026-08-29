@@ -1,0 +1,42 @@
+[data-theme="earth"] {
+  // colors
+  --theme-fill: #10222ecc;
+  --theme-stroke: #3d5a75;
+  --theme-grad-a: #2f5673;
+  --theme-grad-b: #12283a;
+  --theme-accent: #4aa8e8;
+  --theme-accent-glow: #4aa8e866;
+  --theme-nav-fill: #10222eaa;
+  --theme-active: #14293ae6;
+  --theme-accent-hi: #9adcf8;
+  --theme-accent-soft: #7cc4f0;
+
+  // gradients
+  --gradient-accent: linear-gradient(180deg, var(--theme-accent) 0%, var(--theme-accent-hi) 50%, var(--theme-accent) 100%);
+}
+
+[data-theme="mars"] {
+  --theme-fill: #1a1410cc;
+  --theme-stroke: #4a3520;
+  --theme-grad-a: #4a3822;
+  --theme-grad-b: #241a10;
+  --theme-accent: #e8b64c;
+  --theme-accent-glow: #e8b64c66;
+  --theme-nav-fill: #1a1410aa;
+  --theme-active: #241c12e6;
+  --theme-accent-hi: #f7dd9b;
+  --theme-accent-soft: #f0c060;
+}
+
+[data-theme="moon"] {
+  --theme-fill: #14161ccc;
+  --theme-stroke: #454a55;
+  --theme-grad-a: #33394a;
+  --theme-grad-b: #14161c;
+  --theme-accent: #c6cdd8;
+  --theme-accent-glow: #c6cdd866;
+  --theme-nav-fill: #14161caa;
+  --theme-active: #1d2029e6;
+  --theme-accent-hi: #e8ecf4;
+  --theme-accent-soft: #c6cdd8;
+}
