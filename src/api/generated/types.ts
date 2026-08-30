@@ -10,6 +10,126 @@
  * ---------------------------------------------------------------
  */
 
+export interface BaseBuilding {
+  id: number;
+  building_id: string;
+  name: string;
+  slot_number: number;
+  level: number;
+  /** @format date-time */
+  will_upgrade_at: null | string;
+}
+
+export interface BuildingAvailable {
+  building_id: string;
+  name: string;
+  kind: string;
+  /** Текущий уровень; 0 — ещё не построено */
+  level: number;
+  max_level: number;
+  /** Открыто ли технологией */
+  unlocked: boolean;
+  required_tech: null | string;
+  next_level_cost: Record<string, number>;
+  next_level_minutes: number;
+}
+
+export interface SiteFactors {
+  gravity: number;
+  ambient_temp_c: number;
+  solar_efficiency: number;
+  radiation: number;
+  delta_v_from_leo: number;
+}
+
+export interface StoragePhase {
+  phase: "solid" | "liquid" | "gas";
+  used: number;
+  capacity: number;
+  /** Сколько сгорит на следующем тике */
+  overflow: number;
+}
+
+/** Корзина ресурса — его `state` из баланса; `resource_phase_here` — справка, во что вещество превращается на этой точке. Излишек сверх вместимости не блокирует производство, а сгорает раз в `overflow_tick_minutes`. */
+export interface StorageState {
+  phases: StoragePhase[];
+  overflow_tick_minutes: number;
+  site_conditions: {
+    ambient_temp_c: number;
+    pressure_atm: number;
+  };
+  /** res_* → фаза на этой точке (solid/liquid/gas) */
+  resource_phase_here: Record<string, string>;
+}
+
+export interface PowerState {
+  generation_per_hour: number;
+  demand_per_hour: number;
+}
+
+export interface ProductionLine {
+  /** id постройки на базе */
+  building_id: number;
+  building_type: string;
+  /** ex:<sourceId> — добыча, rcp:<recipeId> — переработка */
+  line_key: string;
+  kind: "extraction" | "recipe";
+  name: string;
+  inputs: Record<string, number>;
+  /** Выход за цикл с учётом богатства жилы */
+  outputs: Record<string, number>;
+  cycle_seconds: number;
+  /**
+   * Начало текущего цикла — для прогресс-бара
+   * @format date-time
+   */
+  started_at: null | string;
+  /**
+   * Когда завершится текущий цикл
+   * @format date-time
+   */
+  next_cycle_at: null | string;
+  /** no_power — не хватило мощности (линия стоит весь интервал); no_input — нет входного сырья на складе */
+  status: "running" | "no_power" | "no_input";
+  missing_inputs: string[];
+  power_demand_per_hour: number;
+}
+
+/** Активные производственные линии базы и баланс мощности. */
+export interface ProductionState {
+  lines: ProductionLine[];
+  /**
+   * Ближайшее завершение среди работающих линий — таймер для клиента
+   * @format date-time
+   */
+  next_cycle_at: null | string;
+  power: PowerState;
+}
+
+export interface Base {
+  id: number;
+  site_id: string;
+  site_name: string;
+  body: string;
+  site: SiteFactors;
+  /** Построенные здания базы */
+  buildings: BaseBuilding[];
+  /** Что можно строить на этом теле: текущий уровень, цена следующего и гейт по технологии */
+  buildings_available: BuildingAvailable[];
+  /** Ресурсы на базе без топлива: res_* → килограммы (res_money — деньги) */
+  resources: Record<string, number>;
+  /** Топливные ресурсы отдельной группой: res_* → килограммы (только isFuelType) */
+  fuel: Record<string, number>;
+  /** Готовые модули на складе: mod_* → штуки */
+  modules: Record<string, number>;
+  /** Корзина ресурса — его `state` из баланса; `resource_phase_here` — справка, во что вещество превращается на этой точке. Излишек сверх вместимости не блокирует производство, а сгорает раз в `overflow_tick_minutes`. */
+  storage: StorageState;
+  /** Активные производственные линии базы и баланс мощности. */
+  production: ProductionState;
+  /** @format date-time */
+  server_time: string;
+}
+
 import type {
   AxiosInstance,
   AxiosRequestConfig,
@@ -325,109 +445,7 @@ export class Api<
      */
     basesList: (params: RequestParams = {}) =>
       this.request<
-        {
-          id?: number;
-          site_id?: string;
-          site_name?: string;
-          body?: string;
-          /** Факторы точки, влияющие на базу */
-          site?: {
-            gravity?: number;
-            ambient_temp_c?: number;
-            solar_efficiency?: number;
-            radiation?: number;
-            delta_v_from_leo?: number;
-          };
-          /** Построенные здания базы */
-          buildings?: {
-            id?: number;
-            building_id?: string;
-            name?: string;
-            slot_number?: number;
-            level?: number;
-            /** @format date-time */
-            will_upgrade_at?: null | string;
-          }[];
-          /** Что можно строить на этом теле: текущий уровень, цена следующего и гейт по технологии */
-          buildings_available?: {
-            building_id?: string;
-            name?: string;
-            kind?: string;
-            /** Текущий уровень; 0 — ещё не построено */
-            level?: number;
-            max_level?: number;
-            /** Открыто ли технологией */
-            unlocked?: boolean;
-            required_tech?: null | string;
-            next_level_cost?: Record<string, number>;
-            next_level_minutes?: number;
-          }[];
-          /** Ресурсы на базе без топлива: res_* → килограммы (res_money — деньги) */
-          resources?: Record<string, number>;
-          /** Топливные ресурсы отдельной группой: res_* → килограммы (только isFuelType) */
-          fuel?: Record<string, number>;
-          /** Готовые модули на складе: mod_* → штуки */
-          modules?: Record<string, number>;
-          /** Склады по агрегатным состояниям. Корзина ресурса — его `state` из баланса (для этого и построен склад/депо); `resource_phase_here` — справка, во что вещество превращается на этой точке. Излишек сверх вместимости не блокирует производство, а сгорает раз в `overflow_tick_minutes`. */
-          storage?: {
-            phases?: {
-              phase?: "solid" | "liquid" | "gas";
-              used?: number;
-              capacity?: number;
-              /** Сколько сгорит на следующем тике */
-              overflow?: number;
-            }[];
-            overflow_tick_minutes?: number;
-            site_conditions?: {
-              ambient_temp_c?: number;
-              pressure_atm?: number;
-            };
-            /** res_* → фаза на этой точке (solid/liquid/gas) */
-            resource_phase_here?: Record<string, string>;
-          };
-          /** Активные производственные линии базы. Момент завершения цикла детерминирован, поэтому клиент сам ставит таймер и перезапрашивает базу — сокеты не нужны. */
-          production?: {
-            lines?: {
-              /** id постройки на базе */
-              building_id?: number;
-              building_type?: string;
-              /** ex:<sourceId> — добыча, rcp:<recipeId> — переработка */
-              line_key?: string;
-              kind?: "extraction" | "recipe";
-              name?: string;
-              inputs?: Record<string, number>;
-              /** Выход за цикл с учётом богатства жилы */
-              outputs?: Record<string, number>;
-              cycle_seconds?: number;
-              /**
-               * Начало текущего цикла — для прогресс-бара
-               * @format date-time
-               */
-              started_at?: null | string;
-              /**
-               * Когда завершится текущий цикл
-               * @format date-time
-               */
-              next_cycle_at?: null | string;
-              /** no_power — не хватило мощности (линия стоит весь интервал); no_input — нет входного сырья на складе */
-              status?: "running" | "no_power" | "no_input";
-              missing_inputs?: string[];
-              power_demand_per_hour?: number;
-            }[];
-            /**
-             * Ближайшее завершение среди работающих линий — таймер для клиента
-             * @format date-time
-             */
-            next_cycle_at?: null | string;
-            /** Баланс мощности базы: сколько вырабатывается и сколько просят линии */
-            power?: {
-              generation_per_hour?: number;
-              demand_per_hour?: number;
-            };
-          };
-          /** @format date-time */
-          server_time?: string;
-        }[],
+        Base[],
         {
           error?: string;
           message?: string;
@@ -469,109 +487,7 @@ export class Api<
       params: RequestParams = {},
     ) =>
       this.request<
-        {
-          id?: number;
-          site_id?: string;
-          site_name?: string;
-          body?: string;
-          /** Факторы точки, влияющие на базу */
-          site?: {
-            gravity?: number;
-            ambient_temp_c?: number;
-            solar_efficiency?: number;
-            radiation?: number;
-            delta_v_from_leo?: number;
-          };
-          /** Построенные здания базы */
-          buildings?: {
-            id?: number;
-            building_id?: string;
-            name?: string;
-            slot_number?: number;
-            level?: number;
-            /** @format date-time */
-            will_upgrade_at?: null | string;
-          }[];
-          /** Что можно строить на этом теле: текущий уровень, цена следующего и гейт по технологии */
-          buildings_available?: {
-            building_id?: string;
-            name?: string;
-            kind?: string;
-            /** Текущий уровень; 0 — ещё не построено */
-            level?: number;
-            max_level?: number;
-            /** Открыто ли технологией */
-            unlocked?: boolean;
-            required_tech?: null | string;
-            next_level_cost?: Record<string, number>;
-            next_level_minutes?: number;
-          }[];
-          /** Ресурсы на базе без топлива: res_* → килограммы (res_money — деньги) */
-          resources?: Record<string, number>;
-          /** Топливные ресурсы отдельной группой: res_* → килограммы (только isFuelType) */
-          fuel?: Record<string, number>;
-          /** Готовые модули на складе: mod_* → штуки */
-          modules?: Record<string, number>;
-          /** Склады по агрегатным состояниям. Корзина ресурса — его `state` из баланса (для этого и построен склад/депо); `resource_phase_here` — справка, во что вещество превращается на этой точке. Излишек сверх вместимости не блокирует производство, а сгорает раз в `overflow_tick_minutes`. */
-          storage?: {
-            phases?: {
-              phase?: "solid" | "liquid" | "gas";
-              used?: number;
-              capacity?: number;
-              /** Сколько сгорит на следующем тике */
-              overflow?: number;
-            }[];
-            overflow_tick_minutes?: number;
-            site_conditions?: {
-              ambient_temp_c?: number;
-              pressure_atm?: number;
-            };
-            /** res_* → фаза на этой точке (solid/liquid/gas) */
-            resource_phase_here?: Record<string, string>;
-          };
-          /** Активные производственные линии базы. Момент завершения цикла детерминирован, поэтому клиент сам ставит таймер и перезапрашивает базу — сокеты не нужны. */
-          production?: {
-            lines?: {
-              /** id постройки на базе */
-              building_id?: number;
-              building_type?: string;
-              /** ex:<sourceId> — добыча, rcp:<recipeId> — переработка */
-              line_key?: string;
-              kind?: "extraction" | "recipe";
-              name?: string;
-              inputs?: Record<string, number>;
-              /** Выход за цикл с учётом богатства жилы */
-              outputs?: Record<string, number>;
-              cycle_seconds?: number;
-              /**
-               * Начало текущего цикла — для прогресс-бара
-               * @format date-time
-               */
-              started_at?: null | string;
-              /**
-               * Когда завершится текущий цикл
-               * @format date-time
-               */
-              next_cycle_at?: null | string;
-              /** no_power — не хватило мощности (линия стоит весь интервал); no_input — нет входного сырья на складе */
-              status?: "running" | "no_power" | "no_input";
-              missing_inputs?: string[];
-              power_demand_per_hour?: number;
-            }[];
-            /**
-             * Ближайшее завершение среди работающих линий — таймер для клиента
-             * @format date-time
-             */
-            next_cycle_at?: null | string;
-            /** Баланс мощности базы: сколько вырабатывается и сколько просят линии */
-            power?: {
-              generation_per_hour?: number;
-              demand_per_hour?: number;
-            };
-          };
-          /** @format date-time */
-          server_time?: string;
-        },
+        Base,
         {
           error?: string;
           message?: string;

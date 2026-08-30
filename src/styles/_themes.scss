@@ -26,6 +26,9 @@
   --theme-active: #241c12e6;
   --theme-accent-hi: #f7dd9b;
   --theme-accent-soft: #f0c060;
+
+  // gradients
+  --gradient-accent: linear-gradient(180deg, var(--theme-accent) 0%, var(--theme-accent-hi) 50%, var(--theme-accent) 100%);
 }
 
 [data-theme="moon"] {
@@ -39,4 +42,7 @@
   --theme-active: #1d2029e6;
   --theme-accent-hi: #e8ecf4;
   --theme-accent-soft: #c6cdd8;
+
+  // gradients
+  --gradient-accent: linear-gradient(180deg, var(--theme-accent) 0%, var(--theme-accent-hi) 50%, var(--theme-accent) 100%);
 }

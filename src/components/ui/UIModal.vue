@@ -1,7 +1,10 @@
 <template>
+  <div v-bind="$attrs" @click="open">
+    <slot name="button"> </slot>
+  </div>
   <Teleport to="body">
     <div v-show="isOpened" class="modal__overlay">
-      <div class="modal">
+      <div ref="modal" class="modal">
         <slot />
       </div>
     </div>
@@ -9,7 +12,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { onClickOutside } from "@vueuse/core";
+import { ref, useTemplateRef } from "vue";
 
 interface Props {
   showOnStart?: boolean;
@@ -18,13 +22,20 @@ interface Props {
 const { showOnStart = false } = defineProps<Props>();
 
 const isOpened = ref(showOnStart);
+const modalRef = useTemplateRef("modal");
+
+onClickOutside(modalRef, close);
 
 function open() {
   isOpened.value = true;
 }
+function close() {
+  isOpened.value = false;
+}
 
 defineExpose({
   open,
+  close,
   isOpened,
 });
 </script>
