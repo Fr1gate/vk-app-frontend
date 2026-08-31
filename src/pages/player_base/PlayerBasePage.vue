@@ -1,5 +1,5 @@
 <template>
-  <div class="player-base" data-theme="earth">
+  <div class="player-base">
     <UILoaderModal v-if="loading" />
     <template v-else>
       <PlayerBaseHeader :energy="energy" :fuel="fuel" :money="money" />
@@ -17,11 +17,14 @@ import { api, type ApiData } from "@/api";
 import PlayerBaseBuildings from "@/components/page_parts/player_base/player_base_buildings/PlayerBaseBuildings.vue";
 import PlayerBaseHeader from "@/components/page_parts/player_base/PlayerBaseHeader.vue";
 import UILoaderModal from "@/components/ui/UILoaderModal.vue";
+import { usePlayerBaseStore } from "@/stores/playerBaseStore";
 import { computed, ref } from "vue";
 
 const base = ref<ApiData<["bases", "basesDetail"]> | null>(null);
-
 const loading = ref(true);
+const playerBaseStore = usePlayerBaseStore();
+
+playerBaseStore.setTheme("earth");
 
 api.bases.basesDetail("site_earth").then(({ data }) => {
   base.value = data;

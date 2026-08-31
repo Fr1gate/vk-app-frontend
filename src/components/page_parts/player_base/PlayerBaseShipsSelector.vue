@@ -8,7 +8,7 @@
       </div>
     </template>
     <template #content>
-      <div class="ship-selector__content" data-theme="earth">
+      <div class="ship-selector__content">
         <div class="ship-selector__item" :class="{ 'ship-selector__item_active': true }">
           <div class="ship-selector__item-icon">
             <Ship :size="16" />
