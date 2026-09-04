@@ -3,7 +3,7 @@ import { ref } from "vue";
 
 export type Themes = "earth" | "mars" | "moon";
 
-export const usePlayerBaseStore = defineStore("playerBaseStore", () => {
+export const useThemeStore = defineStore("themeStore", () => {
   const currentTheme = ref<Themes>("earth");
 
   /*

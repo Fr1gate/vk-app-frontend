@@ -20,28 +20,23 @@
   color: var(--font-primary);
   cursor: pointer;
   user-select: none;
+  background: var(--theme-active);
+  border: 1px solid var(--theme-stroke);
 
-  @include mixins.gradient-border(var(--bg-surface), var(--gradient-silver), 2px);
-  &:hover:not(:disabled) {
-    filter: brightness(1.15);
+  &:hover {
+    border: 1px solid var(--theme-accent);
   }
 
-  &:active:not(:disabled) {
-    filter: brightness(0.92);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--accent-100);
-    outline-offset: 1px;
-    border-radius: 6px;
+  &:active {
+    border: 1px solid var(--theme-accent);
+    background: var(--theme-accent-deep);
   }
 
   &:disabled {
-    color: var(--font-disabled);
     cursor: not-allowed;
-    background:
-      var(--bg-surface) padding-box,
-      var(--silver-700) border-box;
+    background: transparent;
+    border: 1px solid var(--silver-700);
+    color: var(--font-disabled);
   }
 }
 </style>

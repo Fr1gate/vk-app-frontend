@@ -8,11 +8,15 @@
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useThemeStore } from "@/stores/themeStore";
+
+const { setTheme } = useThemeStore();
+
+setTheme("moon");
+</script>
 
 <style scoped lang="scss">
-@use "@/styles/variables";
-
 .system-layout {
   width: 100vw;
   height: 100vh;
@@ -30,10 +34,10 @@
   }
 
   &__content {
-    // background-color: var(--bg-elevated);
-    background: radial-gradient(circle, #323743 0%, #1e2129 100%);
-    border-radius: var(--radius-lg);
+    background: var(--gradient-background);
+    border-radius: 10px;
     padding: 32px 64px;
+    border: 1px solid var(--theme-stroke);
   }
 }
 </style>

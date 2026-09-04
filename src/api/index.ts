@@ -8,18 +8,6 @@ declare module "axios" {
   }
 }
 
-export class ApiError extends Error {
-  status?: number;
-  code?: string;
-
-  constructor(message: string, opts?: { status?: number; code?: string }) {
-    super(message);
-    this.name = "ApiError";
-    this.status = opts?.status;
-    this.code = opts?.code;
-  }
-}
-
 const api = new Api({
   baseURL: import.meta.env.VITE_API_URL,
 });
@@ -29,21 +17,10 @@ api.instance.interceptors.response.use(
   (error: AxiosError) => {
     const skip = error.config?.skipErrorHandler === true;
 
-    let apiError: ApiError;
-    if (!error.response) {
-      apiError = error.code === "ECONNABORTED" ? new ApiError("Сервер не ответил вовремя") : new ApiError("Нет соединения с сервером");
-    } else {
-      const body = error.response.data as { message?: string; code?: string } | undefined;
-      apiError = new ApiError(body?.message ?? error.message, {
-        status: error.response.status,
-        code: body?.code,
-      });
-    }
-
     if (!skip) {
-      useErrorStore().handleError(apiError);
+      useErrorStore().handleError(error);
     }
-    return Promise.reject(apiError);
+    return Promise.reject(error);
   },
 );
 

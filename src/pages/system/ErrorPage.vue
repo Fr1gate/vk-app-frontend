@@ -73,11 +73,11 @@ function handleCopyError() {
   &__error-text {
     background: var(--bg-deep);
     border-radius: var(--radius-md);
-    padding: 10px 14px;
+    padding: 40px 14px 14px 14px;
     font-family: monospace;
     color: var(--font-muted);
     min-width: 100%;
-    max-width: 350px;
+    max-width: 450px;
     min-height: 40px;
     max-height: 100px;
     overflow: auto;

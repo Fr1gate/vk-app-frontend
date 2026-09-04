@@ -62,11 +62,14 @@ function handleSubmit() {
 
   &__logo {
     margin-bottom: 16px;
+    display: flex;
+    justify-content: center;
   }
 
   &__header {
     color: var(--font-secondary);
     font-size: 18px;
+    text-align: center;
   }
 
   &__separator {

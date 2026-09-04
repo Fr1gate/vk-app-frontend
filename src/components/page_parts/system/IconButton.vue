@@ -30,20 +30,23 @@ const { iconComponent } = defineProps<Props>();
   transition:
     color 0.15s ease,
     filter 0.15s ease;
-  @include mixins.gradient-border(var(--bg-surface), var(--gradient-silver), 1px);
+  background: var(--theme-active);
+  border: 1px solid var(--theme-stroke);
 
   &:hover {
-    filter: brightness(1.15); // фон чуть подсвечивается
+    border: 1px solid var(--theme-accent);
   }
 
   &:active {
-    filter: brightness(0.92);
+    border: 1px solid var(--theme-accent);
+    background: var(--theme-accent-deep);
   }
 
-  &:focus-visible {
-    outline: 2px solid var(--accent-100);
-    outline-offset: 1px;
-    border-radius: 6px;
+  &:disabled {
+    cursor: not-allowed;
+    background: transparent;
+    border: 1px solid var(--silver-700);
+    color: var(--font-disabled);
   }
 }
 </style>

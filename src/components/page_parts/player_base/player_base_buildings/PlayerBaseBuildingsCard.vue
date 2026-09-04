@@ -18,6 +18,8 @@ const { building } = defineProps<Props>();
 </script>
 
 <style lang="scss" scoped>
+@use "@/styles/mixins";
+
 .building-card {
   width: 140px;
   height: 112px;
@@ -55,6 +57,14 @@ const { building } = defineProps<Props>();
   &__lvl {
     font-size: 10px;
     color: var(--font-secondary);
+  }
+
+  &:hover {
+    box-shadow: 0 0 10px var(--theme-accent-glow);
+    @include mixins.gradient-border(var(--theme-fill), var(--gradient-accent));
+  }
+  &:active {
+    @include mixins.gradient-border(var(--theme-accent-deep), var(--gradient-accent));
   }
 }
 </style>

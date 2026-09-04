@@ -17,12 +17,12 @@ import { api, type ApiData } from "@/api";
 import PlayerBaseBuildings from "@/components/page_parts/player_base/player_base_buildings/PlayerBaseBuildings.vue";
 import PlayerBaseHeader from "@/components/page_parts/player_base/PlayerBaseHeader.vue";
 import UILoaderModal from "@/components/ui/UILoaderModal.vue";
-import { usePlayerBaseStore } from "@/stores/playerBaseStore";
+import { useThemeStore } from "@/stores/themeStore";
 import { computed, ref } from "vue";
 
 const base = ref<ApiData<["bases", "basesDetail"]> | null>(null);
 const loading = ref(true);
-const playerBaseStore = usePlayerBaseStore();
+const playerBaseStore = useThemeStore();
 
 playerBaseStore.setTheme("earth");
 

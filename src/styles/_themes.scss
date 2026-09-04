@@ -10,9 +10,11 @@
   --theme-active: #14293ae6;
   --theme-accent-hi: #9adcf8;
   --theme-accent-soft: #7cc4f0;
+  --theme-accent-deep: #1a3070;
 
   // gradients
   --gradient-accent: linear-gradient(180deg, var(--theme-accent) 0%, var(--theme-accent-hi) 50%, var(--theme-accent) 100%);
+  --gradient-background: radial-gradient(var(--theme-active), var(--theme-fill));
 }
 
 [data-theme="mars"] {
@@ -26,9 +28,11 @@
   --theme-active: #241c12e6;
   --theme-accent-hi: #f7dd9b;
   --theme-accent-soft: #f0c060;
+  --theme-accent-deep: #6b4a1a;
 
   // gradients
   --gradient-accent: linear-gradient(180deg, var(--theme-accent) 0%, var(--theme-accent-hi) 50%, var(--theme-accent) 100%);
+  --gradient-background: radial-gradient(var(--theme-active), var(--theme-fill));
 }
 
 [data-theme="moon"] {
@@ -42,7 +46,9 @@
   --theme-active: #1d2029e6;
   --theme-accent-hi: #e8ecf4;
   --theme-accent-soft: #c6cdd8;
+  --theme-accent-deep: #3d4050;
 
   // gradients
   --gradient-accent: linear-gradient(180deg, var(--theme-accent) 0%, var(--theme-accent-hi) 50%, var(--theme-accent) 100%);
+  --gradient-background: radial-gradient(var(--theme-active), var(--theme-fill));
 }

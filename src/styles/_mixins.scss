@@ -1,6 +1,28 @@
+// doesn't support gradient fill
+// @mixin gradient-border($fill: var(--bg-surface), $gradient: var(--gradient-silver), $width: 1px) {
+//   border: $width solid transparent;
+//   background:
+//     linear-gradient($fill, $fill) padding-box,
+//     $gradient border-box;
+// }
+
 @mixin gradient-border($fill: var(--bg-surface), $gradient: var(--gradient-silver), $width: 1px) {
-  border: $width solid transparent;
-  background:
-    linear-gradient($fill, $fill) padding-box,
-    $gradient border-box;
+  border: 1px solid transparent;
+  position: relative;
+  background: $fill;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -$width;
+    border-radius: inherit;
+    padding: $width;
+    background: $gradient;
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+    // z-index: 0;
+  }
 }

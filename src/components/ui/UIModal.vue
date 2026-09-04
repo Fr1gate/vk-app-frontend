@@ -51,11 +51,13 @@ defineExpose({
   align-items: center;
   justify-content: center;
 
-  background: linear-gradient(to bottom, #06060aff 0%, #0a0c12cc 50%, #0a0c12ff 100%);
+  background: #00000088;
 }
 
 .modal {
   padding: 20px;
-  background-color: var(--bg-elevated);
+  background: var(--gradient-background);
+  border: 1px solid var(--theme-stroke);
+  border-radius: var(--radius-lg);
 }
 </style>

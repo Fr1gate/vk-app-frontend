@@ -11,17 +11,20 @@ import { vkInit } from "@/services/vk/vkInit";
 import { onMounted } from "vue";
 
 onMounted(() => {
-  vkInit().then(({ loggedIn }) => {
-    if (loggedIn) {
-      router.push({
-        name: ROUTES_NAMES.PLAYER_BASE.HOME,
-      });
-    } else {
-      router.push({
-        name: ROUTES_NAMES.SYSTEM.REGISTER,
-      });
-    }
-  });
+  vkInit()
+    .then(({ loggedIn }) => {
+      console.log("them on LOGIN", loggedIn);
+      if (loggedIn) {
+        router.push({
+          name: ROUTES_NAMES.PLAYER_BASE.HOME,
+        });
+      } else {
+        router.push({
+          name: ROUTES_NAMES.SYSTEM.REGISTER,
+        });
+      }
+    })
+    .catch((e) => console.log("Catched login", e));
 });
 </script>
 
