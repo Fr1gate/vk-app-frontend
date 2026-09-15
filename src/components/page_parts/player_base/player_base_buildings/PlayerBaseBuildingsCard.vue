@@ -1,6 +1,6 @@
 <template>
   <div v-bind="$attrs" class="building-card">
-    <div class="building-card__icon"><Building color="var(--font-primary)" :size="24" /></div>
+    <div class="building-card__icon"><Component :is="icon" color="var(--font-primary)" :size="24" /></div>
     <div class="building-card__text">{{ building.name }}</div>
     <div class="building-card__lvl">Ур. {{ building.level }}</div>
   </div>
@@ -8,13 +8,16 @@
 
 <script lang="ts" setup>
 import type { BaseBuilding } from "@/api/generated/types";
-import { Building } from "@lucide/vue";
+import { getBuildingIconComponent } from "@/constants/BuildingIcon";
+import { computed } from "vue";
 
 interface Props {
   building: BaseBuilding;
 }
 
 const { building } = defineProps<Props>();
+
+const icon = computed(() => getBuildingIconComponent(building.kind));
 </script>
 
 <style lang="scss" scoped>
@@ -32,6 +35,8 @@ const { building } = defineProps<Props>();
   justify-content: center;
   user-select: none;
   cursor: pointer;
+
+  @include mixins.button-states;
 
   &__icon {
     display: flex;
@@ -57,14 +62,6 @@ const { building } = defineProps<Props>();
   &__lvl {
     font-size: 10px;
     color: var(--font-secondary);
-  }
-
-  &:hover {
-    box-shadow: 0 0 10px var(--theme-accent-glow);
-    @include mixins.gradient-border(var(--theme-fill), var(--gradient-accent));
-  }
-  &:active {
-    @include mixins.gradient-border(var(--theme-accent-deep), var(--gradient-accent));
   }
 }
 </style>

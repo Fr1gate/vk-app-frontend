@@ -7,7 +7,8 @@
   --theme-accent: #4aa8e8;
   --theme-accent-glow: #4aa8e866;
   --theme-nav-fill: #10222eaa;
-  --theme-active: #14293ae6;
+  // --theme-active: #14293ae6;
+  --theme-active: #0e1f2be3;
   --theme-accent-hi: #9adcf8;
   --theme-accent-soft: #7cc4f0;
   --theme-accent-deep: #1a3070;
@@ -25,7 +26,7 @@
   --theme-accent: #e8b64c;
   --theme-accent-glow: #e8b64c66;
   --theme-nav-fill: #1a1410aa;
-  --theme-active: #241c12e6;
+  --theme-active: #17110ee3;
   --theme-accent-hi: #f7dd9b;
   --theme-accent-soft: #f0c060;
   --theme-accent-deep: #6b4a1a;
@@ -43,10 +44,11 @@
   --theme-accent: #c6cdd8;
   --theme-accent-glow: #c6cdd866;
   --theme-nav-fill: #14161caa;
-  --theme-active: #1d2029e6;
+  --theme-active: #121419e3;
   --theme-accent-hi: #e8ecf4;
   --theme-accent-soft: #c6cdd8;
   --theme-accent-deep: #3d4050;
+  --theme-press: #121419e3;
 
   // gradients
   --gradient-accent: linear-gradient(180deg, var(--theme-accent) 0%, var(--theme-accent-hi) 50%, var(--theme-accent) 100%);

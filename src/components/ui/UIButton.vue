@@ -23,14 +23,7 @@
   background: var(--theme-active);
   border: 1px solid var(--theme-stroke);
 
-  &:hover {
-    border: 1px solid var(--theme-accent);
-  }
-
-  &:active {
-    border: 1px solid var(--theme-accent);
-    background: var(--theme-accent-deep);
-  }
+  @include mixins.button-states;
 
   &:disabled {
     cursor: not-allowed;

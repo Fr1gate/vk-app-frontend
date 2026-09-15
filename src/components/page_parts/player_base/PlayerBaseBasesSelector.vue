@@ -1,28 +1,28 @@
 <template>
   <UIDropdown>
     <template #button>
-      <div class="ship-selector">
+      <div class="bases-selector">
         <Earth :size="16" color="var(--theme-accent)" />
         Земля
         <ChevronDown :size="14" color="var(--theme-accent)" />
       </div>
     </template>
     <template #content>
-      <div class="ship-selector__content">
-        <div class="ship-selector__item" :class="{ 'ship-selector__item_active': true }">
-          <div class="ship-selector__item-icon">
+      <div class="bases-selector__content">
+        <div class="bases-selector__item" :class="{ 'bases-selector__item_active': true }">
+          <div class="bases-selector__item-icon">
             <Earth :size="16" color="var(--theme-accent)" />
           </div>
-          <div class="ship-selector__item-text">Земля</div>
-          <div class="ship-selector__check-icon">
+          <div class="bases-selector__item-text">Земля</div>
+          <div class="bases-selector__check-icon">
             <Check :size="14" color="var(--theme-accent)" />
           </div>
         </div>
-        <div class="ship-selector__item" :class="{ 'ship-selector__item': false }">
-          <div class="ship-selector__item-icon">
+        <div class="bases-selector__item" :class="{ 'bases-selector__item': false }">
+          <div class="bases-selector__item-icon">
             <Moon :size="16" color="var(--theme-accent)" />
           </div>
-          <div class="ship-selector__item-text">Moon</div>
+          <div class="bases-selector__item-text">Moon</div>
         </div>
       </div>
     </template>
@@ -39,16 +39,17 @@ import { Check, ChevronDown, Earth, Moon } from "@lucide/vue";
 <style lang="scss" scoped>
 @use "@/styles/mixins";
 
-.ship-selector {
-  @include mixins.gradient-border(var(--theme-active), var(--gradient-accent));
+.bases-selector {
+  @include mixins.gradient-border(var(--theme-fill), var(--theme-stroke));
   display: flex;
   align-items: center;
   font-size: 14px;
   font-weight: 500;
   padding: 4px 12px;
-  box-shadow: 0 0 10px var(--theme-accent-glow);
   border-radius: 8px;
   gap: 8px;
+
+  @include mixins.button-states;
 
   &__number {
     border-radius: 999px;

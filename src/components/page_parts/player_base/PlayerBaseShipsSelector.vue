@@ -37,15 +37,16 @@ import { Rocket, Ship } from "@lucide/vue";
 @use "@/styles/mixins";
 
 .ship-selector {
-  @include mixins.gradient-border(var(--theme-active), var(--gradient-accent));
+  @include mixins.gradient-border(var(--theme-fill), var(--theme-stroke));
   display: flex;
   align-items: center;
   font-size: 14px;
   font-weight: 500;
   padding: 4px 12px;
-  box-shadow: 0 0 10px var(--theme-accent-glow);
   border-radius: 8px;
   gap: 8px;
+
+  @include mixins.button-states;
 
   &__number {
     border-radius: 999px;

@@ -6,7 +6,7 @@
       </button>
       <div class="embla__viewport" ref="emblaRef">
         <div class="embla__container">
-          <div class="embla__slide" v-for="building in buildings" :key="building.name">
+          <div class="embla__slide" v-for="building in buildings" :key="building.id">
             <PlayerBaseBuildingsCard :building="building" />
           </div>
         </div>
@@ -35,6 +35,8 @@ interface Props {
 
 const { buildings, availableBuildings } = defineProps<Props>();
 
+const showCarousel = computed(() => buildings.length > 5);
+
 const carouselOptions = computed<EmblaOptionsType>(() => ({
   dragFree: true,
   slidesToScroll: 1,
@@ -42,14 +44,10 @@ const carouselOptions = computed<EmblaOptionsType>(() => ({
   watchDrag: showCarousel.value,
 }));
 
-const showCarousel = computed(() => {
-  return buildings.length > 5;
-});
-
 const [emblaRef, emblaApi] = useEmblaCarousel(carouselOptions);
 
-const goToPrev = () => emblaApi.value!.scrollPrev();
-const goToNext = () => emblaApi.value!.scrollNext();
+const goToPrev = () => emblaApi.value?.scrollPrev();
+const goToNext = () => emblaApi.value?.scrollNext();
 </script>
 
 <style lang="scss" scoped>

@@ -11,10 +11,14 @@
  */
 
 export interface BaseBuilding {
-  id: number;
   building_id: string;
   name: string;
-  slot_number: number;
+  /** Описание здания из баланса */
+  description: string;
+  /** Тип здания из баланса: ADMIN, EXTRACTOR, … */
+  kind: string;
+  /** id постройки на базе */
+  id: number;
   level: number;
   /** @format date-time */
   will_upgrade_at: null | string;
@@ -23,6 +27,9 @@ export interface BaseBuilding {
 export interface BuildingAvailable {
   building_id: string;
   name: string;
+  /** Описание здания из баланса */
+  description: string;
+  /** Тип здания из баланса: ADMIN, EXTRACTOR, … */
   kind: string;
   /** Текущий уровень; 0 — ещё не построено */
   level: number;
@@ -1266,6 +1273,53 @@ export class Api<
         path: `/solar-system/battles`,
         method: "GET",
         secure: true,
+        ...params,
+      }),
+  };
+  dictionary = {
+    /**
+     * @description Имена ресурсов и типов топлива для UI, ключ — id. Цены и прочие числа экономики не отдаются.
+     *
+     * @tags dictionary
+     * @name DictionaryList
+     * @summary Справочники ресурсов и топлива
+     * @request GET:/dictionary
+     * @secure
+     */
+    dictionaryList: (params: RequestParams = {}) =>
+      this.request<
+        {
+          /** Карта res_* → вывеска (O(1)-доступ по id) */
+          resources: Record<
+            string,
+            {
+              /** Русское имя из баланса */
+              name: string;
+              /** Английское имя (fallback для локалей) */
+              name_en: null | string;
+              state: "solid" | "liquid" | "gas" | "abstract";
+              /** id типа топлива, если ресурс — топливо */
+              is_fuel_type: null | string;
+            }
+          >;
+          /** Карта id типа топлива → вывеска */
+          fuel_types: Record<
+            string,
+            {
+              name: string;
+              name_en: null | string;
+            }
+          >;
+        },
+        {
+          error?: string;
+          message?: string;
+        }
+      >({
+        path: `/dictionary`,
+        method: "GET",
+        secure: true,
+        format: "json",
         ...params,
       }),
   };

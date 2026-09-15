@@ -1,11 +1,11 @@
 <template>
   <div class="player-base">
-    <UILoaderModal v-if="loading" />
+    <UILoaderModal v-if="baseStore.isInitialLoading" />
     <template v-else>
-      <PlayerBaseHeader :energy="energy" :fuel="fuel" :money="money" />
+      <PlayerBaseHeader :energy="baseStore.powerBalance" :fuel="baseStore.fuelTotal" :money="baseStore.money" />
       <div class="player-base__body">
         <div class="player-base__buildings-carousel">
-          <PlayerBaseBuildings :buildings="base!.buildings" :available-buildings="base!.buildings_available" />
+          <PlayerBaseBuildings :buildings="baseStore.buildings" :available-buildings="baseStore.availableBuildings" />
         </div>
       </div>
     </template>
@@ -13,39 +13,27 @@
 </template>
 
 <script setup lang="ts">
-import { api, type ApiData } from "@/api";
 import PlayerBaseBuildings from "@/components/page_parts/player_base/player_base_buildings/PlayerBaseBuildings.vue";
 import PlayerBaseHeader from "@/components/page_parts/player_base/PlayerBaseHeader.vue";
 import UILoaderModal from "@/components/ui/UILoaderModal.vue";
+import { usePlayerBaseStore } from "@/stores/playerBaseStore";
 import { useThemeStore } from "@/stores/themeStore";
-import { computed, ref } from "vue";
+import { onMounted, watch } from "vue";
 
-const base = ref<ApiData<["bases", "basesDetail"]> | null>(null);
-const loading = ref(true);
-const playerBaseStore = useThemeStore();
+const baseStore = usePlayerBaseStore();
+const themeStore = useThemeStore();
 
-playerBaseStore.setTheme("earth");
-
-api.bases.basesDetail("site_earth").then(({ data }) => {
-  base.value = data;
-  loading.value = false;
-  console.log("BASE:", base.value);
+onMounted(() => {
+  baseStore.loadBase("site_earth");
 });
 
-const money = computed(() => {
-  if (!base.value) return 0;
-  return base.value.resources.res_money!;
-});
-const fuel = computed(() => {
-  if (!base.value) return 0;
-  return Object.values(base.value.fuel).reduce((acc, value) => {
-    return acc + value;
-  }, 0);
-});
-const energy = computed(() => {
-  if (!base.value) return 0;
-  return base.value.production?.power?.generation_per_hour! - base.value.production?.power?.demand_per_hour!;
-});
+watch(
+  () => baseStore.base?.body,
+  (body) => {
+    themeStore.setTheme(body === "moon" || body === "mars" ? body : "earth");
+  },
+  { immediate: true },
+);
 </script>
 
 <style scoped lang="scss">

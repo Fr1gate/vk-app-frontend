@@ -9,12 +9,13 @@ import { ROUTES_NAMES } from "@/constants/RoutesNames";
 import router from "@/router";
 import { vkInit } from "@/services/vk/vkInit";
 import { onMounted } from "vue";
+import { staticDataService } from "./services/staticDataService";
 
 onMounted(() => {
   vkInit()
-    .then(({ loggedIn }) => {
-      console.log("them on LOGIN", loggedIn);
+    .then(async ({ loggedIn }) => {
       if (loggedIn) {
+        await staticDataService.loadData();
         router.push({
           name: ROUTES_NAMES.PLAYER_BASE.HOME,
         });
@@ -24,7 +25,7 @@ onMounted(() => {
         });
       }
     })
-    .catch((e) => console.log("Catched login", e));
+    .catch((e) => console.log("Caught login", e));
 });
 </script>
 
