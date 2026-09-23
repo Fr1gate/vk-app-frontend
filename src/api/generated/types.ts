@@ -50,17 +50,18 @@ export interface SiteFactors {
 }
 
 export interface StoragePhase {
-  phase: "solid" | "liquid" | "gas";
   used: number;
   capacity: number;
-  /** Сколько сгорит на следующем тике */
-  overflow: number;
 }
 
-/** Корзина ресурса — его `state` из баланса; `resource_phase_here` — справка, во что вещество превращается на этой точке. Излишек сверх вместимости не блокирует производство, а сгорает раз в `overflow_tick_minutes`. */
+/** Корзина ресурса — его `state` из баланса; `resource_phase_here` — справка, во что вещество превращается на этой точке. Излишек сверх вместимости не блокирует производство, а сгорает в момент начисления. */
 export interface StorageState {
-  phases: StoragePhase[];
-  overflow_tick_minutes: number;
+  /** Занятость и вместимость по фазам */
+  phases: {
+    solid: StoragePhase;
+    liquid: StoragePhase;
+    gas: StoragePhase;
+  };
   site_conditions: {
     ambient_temp_c: number;
     pressure_atm: number;
@@ -123,13 +124,57 @@ export interface Base {
   buildings: BaseBuilding[];
   /** Что можно строить на этом теле: текущий уровень, цена следующего и гейт по технологии */
   buildings_available: BuildingAvailable[];
-  /** Ресурсы на базе без топлива: res_* → килограммы (res_money — деньги) */
-  resources: Record<string, number>;
-  /** Топливные ресурсы отдельной группой: res_* → килограммы (только isFuelType) */
-  fuel: Record<string, number>;
-  /** Готовые модули на складе: mod_* → штуки */
+  /** Ресурсы на базе без топлива: res_* → килограммы (res_money — деньги). Все ресурсы баланса, отсутствующие на базе — 0 */
+  resources: {
+    res_aluminum: number;
+    res_anorthosite: number;
+    res_carbon: number;
+    res_co2: number;
+    res_composite: number;
+    res_copper: number;
+    res_electronics: number;
+    res_emp_charge: number;
+    res_feni: number;
+    res_h2: number;
+    res_he3: number;
+    res_he3_regolith: number;
+    res_hydrocarbons: number;
+    res_ilmenite: number;
+    res_iron_oxide: number;
+    res_kreep: number;
+    res_metal_ore: number;
+    res_missiles: number;
+    res_money: number;
+    res_nickel: number;
+    res_oxidizer: number;
+    res_perchlorate: number;
+    res_pgm: number;
+    res_polymers: number;
+    res_rare_ore: number;
+    res_ree: number;
+    res_refractory: number;
+    res_s_mix: number;
+    res_silica: number;
+    res_silica_glass: number;
+    res_slugs: number;
+    res_steel: number;
+    res_titanium: number;
+    res_uranium_ore: number;
+    res_water: number;
+  };
+  /** Топливные ресурсы отдельной группой: res_* → килограммы (только isFuelType). Все топливные ресурсы баланса, отсутствующие — 0 */
+  fuel: {
+    res_argon: number;
+    res_hypergolic: number;
+    res_kerosene: number;
+    res_methane: number;
+    res_nuclear_fuel: number;
+    res_o2: number;
+    res_xenon: number;
+  };
+  /** Готовые модули на складе: mod_* → штуки (только ненулевые) */
   modules: Record<string, number>;
-  /** Корзина ресурса — его `state` из баланса; `resource_phase_here` — справка, во что вещество превращается на этой точке. Излишек сверх вместимости не блокирует производство, а сгорает раз в `overflow_tick_minutes`. */
+  /** Корзина ресурса — его `state` из баланса; `resource_phase_here` — справка, во что вещество превращается на этой точке. Излишек сверх вместимости не блокирует производство, а сгорает в момент начисления. */
   storage: StorageState;
   /** Активные производственные линии базы и баланс мощности. */
   production: ProductionState;
@@ -378,9 +423,9 @@ export class Api<
     loginCreate: (params: RequestParams = {}) =>
       this.request<
         {
-          success?: boolean;
-          message?: string;
-          user?: {
+          success: boolean;
+          message: string;
+          user: {
             id: string;
             vk_id: string;
             name: string;
@@ -417,9 +462,9 @@ export class Api<
     ) =>
       this.request<
         {
-          success?: boolean;
-          message?: string;
-          user?: {
+          success: boolean;
+          message: string;
+          user: {
             id: string;
             vk_id: string;
             name: string;
@@ -992,14 +1037,14 @@ export class Api<
     sitesList: (params: RequestParams = {}) =>
       this.request<
         {
-          id?: string;
-          name?: string;
-          body?: string;
-          gravity?: number;
-          ambientTempC?: number;
-          deltaVFromLEO?: number;
-          solarEfficiency?: number;
-          unlockedByTechId?: null | string;
+          id: string;
+          name: string;
+          body: string;
+          gravity: number;
+          ambientTempC: number;
+          deltaVFromLEO: number;
+          solarEfficiency: number;
+          unlockedByTechId: null | string;
         }[],
         {
           error?: string;
@@ -1297,7 +1342,6 @@ export class Api<
               name: string;
               /** Английское имя (fallback для локалей) */
               name_en: null | string;
-              state: "solid" | "liquid" | "gas" | "abstract";
               /** id типа топлива, если ресурс — топливо */
               is_fuel_type: null | string;
             }

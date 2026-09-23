@@ -1,30 +1,44 @@
 <template>
-  <div class="player-base-header">
-    <div class="player-base-header__left">
-      <PlayerBaseBasesSelector />
+  <div>
+    <div class="player-base-header">
+      <div class="player-base-header__left">
+        <PlayerBaseBasesSelector />
+      </div>
+      <UIDropdown align="center">
+        <template #button>
+          <div class="player-base-header__center">
+            <div class="player-base-header__resource">
+              <div class="player-base-header__resource-icon">
+                <RussianRuble :size="iconSize" color="var(--theme-accent)" />
+              </div>
+              <div class="player-base-header__resource-value">{{ moneyStr }}</div>
+            </div>
+            <div class="player-base-header__resource">
+              <div class="player-base-header__resource-icon">
+                <Droplets :size="iconSize" color="var(--theme-accent)" />
+              </div>
+              <div class="player-base-header__resource-value">{{ fuelStr }} т</div>
+            </div>
+            <div class="player-base-header__resource">
+              <div class="player-base-header__resource-icon">
+                <Zap :size="iconSize" color="var(--theme-accent)" />
+              </div>
+              <div class="player-base-header__resource-value">{{ energyStr }} МВт</div>
+            </div>
+          </div>
+        </template>
+        <template #content>
+          <PlayerBaseResources />
+        </template>
+      </UIDropdown>
+      <div class="player-base-header__right">
+        <PlayerBaseShipsSelector />
+      </div>
     </div>
-    <div class="player-base-header__center">
-      <div class="player-base-header__resource">
-        <div class="player-base-header__resource-icon">
-          <RussianRuble :size="iconSize" color="var(--theme-accent)" />
-        </div>
-        <div class="player-base-header__resource-value">{{ moneyStr }}</div>
-      </div>
-      <div class="player-base-header__resource">
-        <div class="player-base-header__resource-icon">
-          <Droplets :size="iconSize" color="var(--theme-accent)" />
-        </div>
-        <div class="player-base-header__resource-value">{{ fuelStr }} т</div>
-      </div>
-      <div class="player-base-header__resource">
-        <div class="player-base-header__resource-icon">
-          <Zap :size="iconSize" color="var(--theme-accent)" />
-        </div>
-        <div class="player-base-header__resource-value">{{ energyStr }} МВт</div>
-      </div>
-    </div>
-    <div class="player-base-header__right">
-      <PlayerBaseShipsSelector />
+    <div class="player-base-header__sub-menu">
+      <div class="player-base-header__sub-menu-item">Исследования</div>
+      <div class="player-base-header__sub-menu-item">Рынок</div>
+      <div class="player-base-header__sub-menu-item">Контракты</div>
     </div>
   </div>
 </template>
@@ -34,6 +48,8 @@ import { RussianRuble, Droplets, Zap } from "@lucide/vue";
 import PlayerBaseShipsSelector from "./PlayerBaseShipsSelector.vue";
 import PlayerBaseBasesSelector from "./PlayerBaseBasesSelector.vue";
 import { computed } from "vue";
+import UIDropdown from "@/components/ui/UIDropdown.vue";
+import PlayerBaseResources from "./PlayerBaseResources.vue";
 
 interface Props {
   money: number;
@@ -67,7 +83,8 @@ const energyStr = computed(() => {
 
 <style lang="scss" scoped>
 .player-base-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   background-color: var(--theme-fill);
   box-sizing: content-box;
   height: 48px;
@@ -80,6 +97,15 @@ const energyStr = computed(() => {
     display: flex;
     align-items: center;
     height: 40px;
+  }
+
+  &__left,
+  &__right {
+    display: flex;
+  }
+
+  &__right {
+    justify-content: end;
   }
 
   &__resource {
@@ -96,6 +122,29 @@ const energyStr = computed(() => {
     &-icon {
       margin-right: 4px;
       display: flex;
+    }
+  }
+
+  &__sub-menu {
+    background: linear-gradient(#0a0c12d9, #0a0c1200);
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 36px;
+  }
+
+  &__sub-menu-item {
+    font-size: 14px;
+    color: var(--font-primary);
+    cursor: pointer;
+    user-select: none;
+    padding: 4px 8px;
+    border-bottom: 2px solid transparent;
+
+    &:hover {
+      color: var(--theme-accent);
+      border-bottom: 2px solid var(--theme-accent);
     }
   }
 }

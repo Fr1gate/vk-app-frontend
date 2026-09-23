@@ -11,7 +11,13 @@
 
 <script lang="ts" setup>
 import { onClickOutside } from "@vueuse/core";
-import { onMounted, reactive, ref, useTemplateRef } from "vue";
+import { onMounted, reactive, ref, useTemplateRef, watch } from "vue";
+
+interface Props {
+  align?: "left" | "center" | "right";
+}
+
+const { align = "left" } = defineProps<Props>();
 
 const isShowed = ref(false);
 const refButton = useTemplateRef("button");
@@ -19,7 +25,9 @@ const refBody = useTemplateRef("body");
 const contentStyles = reactive({
   top: "0px",
   left: "0px",
+  right: "unset",
   ["min-width"]: "0px",
+  transform: "unset",
 });
 
 onMounted(() => {
@@ -46,12 +54,39 @@ onClickOutside(
   },
 );
 
+watch(() => align, resetStyles);
+
+function resetStyles() {
+  Object.assign(contentStyles, {
+    top: "0px",
+    left: "0px",
+    right: "unset",
+    ["min-width"]: "0px",
+    transform: "unset",
+  });
+}
+
 function calculatePosition() {
   const rect = refButton.value?.getBoundingClientRect();
 
   contentStyles.top = `${rect!.bottom + 2}px`;
-  contentStyles.left = `${rect!.left}px`;
   contentStyles["min-width"] = `${rect!.width}px`;
+
+  switch (align) {
+    case "left": {
+      contentStyles.left = `${rect!.left}px`;
+      break;
+    }
+    case "center": {
+      contentStyles.left = `${rect!.left + (rect!.right - rect!.left) / 2}px`;
+      contentStyles.transform = `translateX(-50%)`;
+      break;
+    }
+    case "right": {
+      contentStyles.right = `${rect!.right}px`;
+      break;
+    }
+  }
 }
 </script>
 
