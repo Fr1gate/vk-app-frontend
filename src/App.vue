@@ -17,7 +17,7 @@ onMounted(() => {
       if (loggedIn) {
         await staticDataService.loadData();
         router.push({
-          name: ROUTES_NAMES.PLAYER_BASE.HOME,
+          name: ROUTES_NAMES.PLAYER_BASE.HOME.BUILDINGS,
         });
       } else {
         router.push({

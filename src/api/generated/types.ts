@@ -178,8 +178,101 @@ export interface Base {
   storage: StorageState;
   /** Активные производственные линии базы и баланс мощности. */
   production: ProductionState;
+}
+
+export interface TechnologyCost {
+  money: number;
+  /** Длительность исследования, часов */
+  hours: number;
+  /** Материалы-прототипы: res_* → количество (кг) */
+  materials?: Record<string, number>;
+}
+
+/** Что открывает технология. Собирается по всем связям баланса — в том числе записанным со стороны объекта (`unlockedByTechId`), а не только в `unlocks` технологии. */
+export interface TechnologyUnlocks {
+  modules?: string[];
+  buildings?: string[];
+  resources?: string[];
+  recipes?: string[];
+  sites?: string[];
+  /** Игровые фичи, например "telemetry" */
+  features?: string[];
+}
+
+export interface Technology {
+  /** Стабильный ключ связей (`tech_N`) */
+  id: string;
+  /** Человекочитаемый код (`A2`, `GH1`); может переименовываться */
+  code: string;
+  name: string;
+  description: string;
+  /** Ветка дерева (A…K) */
+  branch_id: string;
+  /** Исторический тир (T1…) */
+  tier_id: null | string;
+  /** researched — открыта; in_progress — исследуется сейчас; available — пререквизиты выполнены; locked — нет */
+  status: "researched" | "in_progress" | "available" | "locked";
+  /** Группы требований. Строка — одна технология, вложенный массив — «любая из». */
+  prerequisites: (string | string[])[];
+  /** Незакрытые группы, альтернативы через « | ». Пусто, если всё выполнено. */
+  missing_prerequisites: string[];
+  cost: TechnologyCost;
+  /** Что открывает технология. Собирается по всем связям баланса — в том числе записанным со стороны объекта (`unlockedByTechId`), а не только в `unlocks` технологии. */
+  unlocks: TechnologyUnlocks;
+  /**
+   * Когда завершится, если статус in_progress
+   * @format date-time
+   */
+  completes_at: null | string;
+}
+
+export interface TechnologyTier {
+  /** Исторический тир (T1…) */
+  id: string;
+  name: string;
+  order: number;
+  /** Опциональная ветка — вне критического пути */
+  optional: boolean;
+}
+
+export interface TechnologyBranch {
+  /** Ветка дерева (A…K) */
+  id: string;
+  name: string;
+}
+
+export interface ActiveResearch {
+  /** Стабильный id технологии (`tech_N`) */
+  tech_id: string;
   /** @format date-time */
-  server_time: string;
+  started_at: string;
+  /** @format date-time */
+  completes_at: string;
+}
+
+export interface TechnologiesResponse {
+  tiers: TechnologyTier[];
+  branches: TechnologyBranch[];
+  technologies: Technology[];
+  active_research: ActiveResearch[];
+  /** 1 + уровень лучшей лаборатории */
+  slots_total: number;
+  slots_free: number;
+}
+
+export interface ResearchStarted {
+  /** Стабильный id технологии (`tech_N`) */
+  tech_id: string;
+  /** @format date-time */
+  completes_at: string;
+}
+
+export interface ResearchError {
+  /** Already researched · Research in progress · No research slots · Prerequisites not met · Not enough resources */
+  error: string;
+  message?: string;
+  /** Чего именно не хватило на складе базы */
+  missingResources?: string[];
 }
 
 import type {
@@ -1060,7 +1153,7 @@ export class Api<
   };
   technologies = {
     /**
-     * @description Весь экран исследований одним ответом: тиры, ветки, все технологии со статусом и стоимостью, идущие исследования и число свободных слотов. Слоты: один доступен всегда, лаборатория (`bld_research_lab`) добавляет по своему уровню — так решается то, что саму лабораторию открывает технология G1.
+     * @description Весь экран исследований одним ответом: тиры, ветки, все технологии со статусом и стоимостью, идущие исследования и число свободных слотов. Слоты: один доступен всегда, лаборатория (`bld_research_lab`) добавляет по своему уровню — так решается то, что саму лабораторию открывает технология G1. `id` технологии — стабильный ключ связей (`tech_N`); `code` (`A2`, `GH1`) — человекочитаемый код для интерфейса.
      *
      * @tags technologies
      * @name TechnologiesList
@@ -1070,64 +1163,7 @@ export class Api<
      */
     technologiesList: (params: RequestParams = {}) =>
       this.request<
-        {
-          tiers?: {
-            id?: string;
-            name?: string;
-            order?: number;
-            optional?: boolean;
-          }[];
-          branches?: {
-            id?: string;
-            name?: string;
-          }[];
-          technologies?: {
-            /** A1, BH2, K5 … */
-            id?: string;
-            name?: string;
-            description?: string;
-            /** Ветка дерева (A…K) */
-            branch_id?: string;
-            /** Исторический тир (T1…) */
-            tier_id?: null | string;
-            /** researched — открыта; in_progress — исследуется сейчас; available — пререквизиты выполнены; locked — нет */
-            status?: "researched" | "in_progress" | "available" | "locked";
-            /** Группы требований. Строка — одна технология, вложенный массив — «любая из». */
-            prerequisites?: any[];
-            /** Незакрытые группы, альтернативы через « | ». Пусто, если всё выполнено. */
-            missing_prerequisites?: string[];
-            cost?: {
-              money?: number;
-              hours?: number;
-              /** Материалы-прототипы: res_* → количество (кг) */
-              materials?: Record<string, number>;
-            };
-            unlocks?: {
-              modules?: string[];
-              buildings?: string[];
-              resources?: string[];
-              recipes?: string[];
-              sites?: string[];
-            };
-            /**
-             * Когда завершится, если статус in_progress
-             * @format date-time
-             */
-            completes_at?: null | string;
-          }[];
-          active_research?: {
-            tech_id?: string;
-            /** @format date-time */
-            started_at?: string;
-            /** @format date-time */
-            completes_at?: string;
-          }[];
-          /** 1 + уровень лучшей лаборатории */
-          slots_total?: number;
-          slots_free?: number;
-          /** @format date-time */
-          server_time?: string;
-        },
+        TechnologiesResponse,
         {
           error?: string;
           message?: string;
@@ -1158,18 +1194,8 @@ export class Api<
       params: RequestParams = {},
     ) =>
       this.request<
-        {
-          tech_id?: string;
-          /** @format date-time */
-          completes_at?: string;
-        },
-        | {
-            /** Already researched · Research in progress · No research slots · Prerequisites not met · Not enough resources */
-            error?: string;
-            message?: string;
-            /** Чего именно не хватило на складе базы */
-            missingResources?: string[];
-          }
+        ResearchStarted,
+        | ResearchError
         | {
             error?: string;
             message?: string;
@@ -1218,8 +1244,6 @@ export class Api<
           }[];
           tiers?: number[];
           kinds?: string[];
-          /** @format date-time */
-          server_time?: string;
           /** Включена ли сдача контрактов. Пока всегда false */
           fulfilment_enabled?: boolean;
         },

@@ -32,7 +32,7 @@ const playerStore = usePlayerStore();
 if (playerStore.player) {
   // user is already authorized and open this page by mistake
   router.push({
-    name: ROUTES_NAMES.PLAYER_BASE.HOME,
+    name: ROUTES_NAMES.PLAYER_BASE.HOME.BUILDINGS,
   });
 }
 
@@ -42,7 +42,7 @@ function handleSubmit() {
     .then(({ data }) => {
       playerStore.player = data.user;
       router.push({
-        name: ROUTES_NAMES.PLAYER_BASE.HOME,
+        name: ROUTES_NAMES.PLAYER_BASE.HOME.BUILDINGS,
       });
     })
     .catch((err) => {

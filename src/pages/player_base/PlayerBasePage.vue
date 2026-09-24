@@ -3,17 +3,12 @@
     <UILoaderModal v-if="baseStore.isInitialLoading" />
     <template v-else>
       <PlayerBaseHeader :energy="baseStore.powerBalance" :fuel="baseStore.fuelTotal" :money="baseStore.money" />
-      <div class="player-base__body">
-        <div class="player-base__buildings-carousel">
-          <PlayerBaseBuildings :buildings="baseStore.buildings" :available-buildings="baseStore.availableBuildings" />
-        </div>
-      </div>
+      <router-view />
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import PlayerBaseBuildings from "@/components/page_parts/player_base/player_base_buildings/PlayerBaseBuildings.vue";
 import PlayerBaseHeader from "@/components/page_parts/player_base/PlayerBaseHeader.vue";
 import UILoaderModal from "@/components/ui/UILoaderModal.vue";
 import { usePlayerBaseStore } from "@/stores/playerBaseStore";
@@ -27,6 +22,7 @@ onMounted(() => {
   baseStore.loadBase("site_earth");
 });
 
+// maybe redundant
 watch(
   () => baseStore.base?.body,
   (body) => {
@@ -44,6 +40,7 @@ watch(
   flex-direction: column;
   background-image: url("@/assets/bg/bases/bg-earth.webp");
   background-size: cover;
+  position: relative;
 
   &__header {
     height: 30px;

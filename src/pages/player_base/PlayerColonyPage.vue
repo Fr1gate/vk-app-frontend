@@ -3,7 +3,7 @@
     <h2>Colony Page</h2>
     <router-link
       :to="{
-        name: ROUTES_NAMES.PLAYER_BASE.HOME,
+        name: ROUTES_NAMES.PLAYER_BASE.HOME.BUILDINGS,
         params: {
           colonyId: 1,
         },

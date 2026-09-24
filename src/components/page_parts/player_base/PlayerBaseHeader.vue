@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="player-base-header__wrapper">
     <div class="player-base-header">
       <div class="player-base-header__left">
         <PlayerBaseBasesSelector />
@@ -36,7 +36,20 @@
       </div>
     </div>
     <div class="player-base-header__sub-menu">
-      <div class="player-base-header__sub-menu-item">Исследования</div>
+      <router-link
+        :to="{
+          name: ROUTES_NAMES.PLAYER_BASE.HOME.BUILDINGS,
+        }"
+        class="player-base-header__sub-menu-item"
+        >База</router-link
+      >
+      <router-link
+        :to="{
+          name: ROUTES_NAMES.PLAYER_BASE.HOME.RESEARCH,
+        }"
+        class="player-base-header__sub-menu-item"
+        >Исследования</router-link
+      >
       <div class="player-base-header__sub-menu-item">Рынок</div>
       <div class="player-base-header__sub-menu-item">Контракты</div>
     </div>
@@ -50,6 +63,7 @@ import PlayerBaseBasesSelector from "./PlayerBaseBasesSelector.vue";
 import { computed } from "vue";
 import UIDropdown from "@/components/ui/UIDropdown.vue";
 import PlayerBaseResources from "./PlayerBaseResources.vue";
+import { ROUTES_NAMES } from "@/constants/RoutesNames.ts";
 
 interface Props {
   money: number;
@@ -92,6 +106,10 @@ const energyStr = computed(() => {
   justify-content: space-between;
   padding-inline: 24px;
   border-bottom: 1px solid var(--theme-accent);
+
+  &__wrapper {
+    z-index: 2;
+  }
 
   &__center {
     display: flex;
@@ -141,6 +159,11 @@ const energyStr = computed(() => {
     user-select: none;
     padding: 4px 8px;
     border-bottom: 2px solid transparent;
+    text-decoration: none;
+
+    &.router-link-active {
+      color: var(--theme-accent);
+    }
 
     &:hover {
       color: var(--theme-accent);

@@ -35,9 +35,33 @@ const router = createRouter({
           component: () => import("@/layouts/PlayerBaseLayout.vue"),
           children: [
             {
-              name: ROUTES_NAMES.PLAYER_BASE.HOME,
               path: "home",
               component: () => import("@/pages/player_base/PlayerBasePage.vue"),
+              redirect: {
+                name: ROUTES_NAMES.PLAYER_BASE.HOME.BUILDINGS,
+              },
+              children: [
+                {
+                  name: ROUTES_NAMES.PLAYER_BASE.HOME.BUILDINGS,
+                  component: () => import("@/pages/player_base/player_base_tabs/PlayerBaseTabBuildings.vue"),
+                  path: "buildings",
+                },
+                {
+                  name: ROUTES_NAMES.PLAYER_BASE.HOME.RESEARCH,
+                  component: () => import("@/pages/player_base/player_base_tabs/PlayerBaseTabResearch.vue"),
+                  path: "research",
+                },
+                // {
+                //   name: ROUTES_NAMES.PLAYER_BASE.HOME.MARKETS,
+                //   component: () => import("@/pages/player_base/PlayerBasePage.vue"),
+                //   path: "research",
+                // },
+                // {
+                //   name: ROUTES_NAMES.PLAYER_BASE.HOME.CONTRACTS,
+                //   component: () => import("@/pages/player_base/PlayerBasePage.vue"),
+                //   path: "research",
+                // },
+              ],
             },
             {
               name: ROUTES_NAMES.PLAYER_BASE.COLONY,
