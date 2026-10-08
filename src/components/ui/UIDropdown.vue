@@ -99,6 +99,8 @@ function calculatePosition() {
 
   &__content {
     position: absolute;
+
+    z-index: 20;
   }
 }
 </style>

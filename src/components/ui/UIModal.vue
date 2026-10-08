@@ -52,6 +52,8 @@ defineExpose({
   justify-content: center;
 
   background: #00000088;
+
+  z-index: 10;
 }
 
 .modal {
@@ -59,5 +61,7 @@ defineExpose({
   background: var(--gradient-background);
   border: 1px solid var(--theme-stroke);
   border-radius: var(--radius-lg);
+
+  z-index: 11;
 }
 </style>

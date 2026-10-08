@@ -216,6 +216,8 @@ export interface Technology {
   prerequisites: (string | string[])[];
   /** Незакрытые группы, альтернативы через « | ». Пусто, если всё выполнено. */
   missing_prerequisites: string[];
+  /** Технологии, которые эта открывает: у них она стоит в `prerequisites` (обратная связь; группы «любая из» дают зависимого каждому варианту) */
+  dependents: string[];
   cost: TechnologyCost;
   /** Что открывает технология. Собирается по всем связям баланса — в том числе записанным со стороны объекта (`unlockedByTechId`), а не только в `unlocks` технологии. */
   unlocks: TechnologyUnlocks;

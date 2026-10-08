@@ -8,6 +8,7 @@ export const useResearchStore = defineStore("researchStore", () => {
   const researchData = ref<TechnologiesResponse | null>(null);
   const isLoading = ref<boolean>(false);
   const loadedInitially = ref<boolean>(false);
+  const techDictionary = ref<Record<string, Technology>>({});
 
   function loadData() {
     isLoading.value = true;
@@ -47,7 +48,7 @@ export const useResearchStore = defineStore("researchStore", () => {
 
       const tech = techIdOnTechMap[techId]!;
 
-      if (!tech.prerequisites) {
+      if (!tech.prerequisites.length) {
         //first tech in branch, no prerequisites
         placedTechsPointers[tech.id] = 1;
         techTree[tech.branch_id]![1] = tech;

@@ -1,23 +1,7 @@
 <template>
   <div class="player-base-research">
     <div class="player-base-research__left">
-      <div class="tech-tree">
-        <div
-          v-for="tech in techs"
-          :key="tech.id"
-          class="tech-tree__tech"
-          :class="{
-            'tech-tree__tech_prev': false,
-            'tech-tree__tech_next': false,
-          }"
-          :style="{ gridColumn: tech.column, gridRow: tech.row }"
-        >
-          {{ tech.name }}
-          <div v-for="d in tech.prerequisites" :key="d.id" class="tech-tree__arrow_a">
-            <div class="tech-tree__arrow_b"></div>
-          </div>
-        </div>
-      </div>
+      <PlayerBaseResearchTree :techs="techs" />
     </div>
     <div class="player-base-research__right">
       <!-- Active research -->
@@ -29,37 +13,41 @@
 <script lang="ts" setup>
 import type { Technology } from "@/api/generated/types";
 import { useResearchStore } from "@/stores/researchStore";
-import { computed, ref } from "vue";
+import { onMounted, ref } from "vue";
+import PlayerBaseResearchTree from "@/components/page_parts/player_base/player_base_research/PlayerBaseResearchTree.vue";
 
-const techTree = ref<ReturnType<typeof researchStore.formTree> | null>(null);
+type TechWithPosition = Technology & { row: number; column: number };
 
-// is already loaded
 const researchStore = useResearchStore();
-researchStore.loadData().then(() => {
-  techTree.value = researchStore.formTree();
-  console.log("formed a tree");
+const techsPositions: Record<string, { row: number; column: number }> = {};
+const techs = ref<Record<string, TechWithPosition>>({});
+
+onMounted(() => {
+  loadData();
 });
 
-const techs = computed(() => {
-  console.log("computing");
-  const res: (Technology & { row: number; column: number })[] = [];
+function loadData() {
+  researchStore.loadData().then(() => {
+    const tree = researchStore.formTree()!;
+    techs.value = {};
 
-  if (!techTree.value) return res;
-
-  let curRow = 0;
-  for (const [branchId, branchTechs] of Object.entries(techTree.value)) {
-    curRow++;
-    for (const [pointer, tech] of Object.entries(branchTechs)) {
-      res.push({
-        ...tech,
-        row: curRow,
-        column: +pointer,
-      });
+    let curRow = 0;
+    for (const branchTechs of Object.values(tree)) {
+      curRow++;
+      for (const [pointer, tech] of Object.entries(branchTechs)) {
+        techs.value[tech.id] = {
+          ...tech,
+          row: curRow,
+          column: +pointer,
+        };
+        techsPositions[tech.id] = {
+          row: curRow,
+          column: +pointer,
+        };
+      }
     }
-  }
-
-  return res;
-});
+  });
+}
 </script>
 
 <style lang="scss" scoped>
@@ -75,31 +63,6 @@ const techs = computed(() => {
 
   &__ {
     //
-  }
-}
-
-.tech-tree {
-  display: grid;
-  grid-auto-columns: auto;
-  grid-auto-rows: auto;
-  gap: 6px 24px;
-  overflow: auto;
-  max-width: calc(100vw);
-  max-height: calc(100vh - 105px);
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  &__tech {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    border: 1px solid var(--theme-divider);
-    padding: 6px;
-    font-size: 12px;
-    background: var(--gradient-background);
   }
 }
 </style>
