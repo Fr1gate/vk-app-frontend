@@ -7,9 +7,13 @@ COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund
 
 # npm не сохраняет в lock-файл платформенные бинарники чужих ОС (npm/cli#4828):
-# на linux доставляем бинарник rolldown ровно той версии, что уже стоит в дереве
-RUN RLD_VERSION="$(node -p "require('rolldown/package.json').version")" \
- && npm install --no-save "@rolldown/binding-linux-x64-gnu@${RLD_VERSION}"
+# доставляем linux-бинарники нативных зависимостей сборки — rolldown (бандлер)
+# и lightningcss (минификатор CSS); версии берём из lock-файла
+RUN RLD_VERSION="$(node -p "require('./package-lock.json').packages['node_modules/rolldown'].version")" \
+ && LCS_VERSION="$(node -p "require('./package-lock.json').packages['node_modules/lightningcss'].version")" \
+ && npm install --no-save \
+      "@rolldown/binding-linux-x64-gnu@${RLD_VERSION}" \
+      "lightningcss-linux-x64-gnu@${LCS_VERSION}"
 
 COPY . .
 
