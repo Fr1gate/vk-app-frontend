@@ -4,7 +4,12 @@ FROM node:22-slim AS build
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --no-audit --no-fund
+
+# npm не сохраняет в lock-файл платформенные бинарники чужих ОС (npm/cli#4828):
+# на linux доставляем бинарник rolldown ровно той версии, что уже стоит в дереве
+RUN RLD_VERSION="$(node -p "require('rolldown/package.json').version")" \
+ && npm install --no-save "@rolldown/binding-linux-x64-gnu@${RLD_VERSION}"
 
 COPY . .
 
