@@ -46,8 +46,8 @@ type linkStyles = {
 const SIZES = {
   techHeight: 40,
   techWidth: 200,
-  gapHorizontal: 24,
-  gapVertical: 24,
+  gapHorizontal: 6,
+  gapVertical: 6,
 };
 
 const { techs } = defineProps<{
@@ -298,7 +298,7 @@ function reset() {
   display: grid;
   grid-auto-columns: auto;
   grid-auto-rows: auto;
-  gap: 24px 24px;
+  gap: 6px 6px;
   overflow: auto;
   max-height: calc(100vh - 145px);
   // scrollbar-width: none;
