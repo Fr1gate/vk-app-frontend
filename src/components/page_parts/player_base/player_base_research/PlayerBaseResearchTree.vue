@@ -1,12 +1,14 @@
 <template>
-  <div class="tech-tree">
+  <div class="tech-tree" @click="handleSelect(null)">
     <template v-for="tech in Object.values(techs)" :key="tech.id">
       <PlayerBaseResearchTreeNode
         :tech="tech"
+        :is-selected="selectedTech === tech.id"
         :is-prev-tech="!!prevTechs[tech.id]"
         :is-next-tech="!!nextTechs[tech.id]"
         :style="{ gridColumn: tech.column, gridRow: tech.row }"
-        @highlight="handleHighlight($event, tech.id)"
+        @select="handleSelect(tech.id)"
+        @click.stop
       />
     </template>
     <template v-for="[key] in Object.entries(prevTechs)" :key="key">
@@ -51,6 +53,8 @@ const SIZES = {
 const { techs } = defineProps<{
   techs: Record<string, TechWithPosition>;
 }>();
+
+const selectedTech = defineModel("selectedTech");
 
 const highlightedTech = ref<string | null>(null);
 const prevTechs = ref<Record<string, true>>({});
@@ -275,6 +279,12 @@ function handleHighlight(isHighlighted: boolean, techId: string) {
   }
 }
 
+function handleSelect(techId: string | null) {
+  selectedTech.value = techId;
+  if (techId) handleHighlight(true, techId);
+  else reset();
+}
+
 function reset() {
   prevTechs.value = {};
   nextTechs.value = {};
@@ -290,12 +300,11 @@ function reset() {
   grid-auto-rows: auto;
   gap: 24px 24px;
   overflow: auto;
-  max-width: calc(100vw);
-  max-height: calc(100vh - 105px);
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  max-height: calc(100vh - 145px);
+  // scrollbar-width: none;
+  // &::-webkit-scrollbar {
+  //   display: none;
+  // }
 
   &__link {
     position: absolute;

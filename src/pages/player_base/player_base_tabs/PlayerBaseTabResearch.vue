@@ -1,11 +1,16 @@
 <template>
   <div class="player-base-research">
     <div class="player-base-research__left">
-      <PlayerBaseResearchTree :techs="techs" />
+      <div class="player-base-research__switcher">
+        <UITabsSelector v-model:selected="selectedTab" :options="TABS" />
+      </div>
+      <div class="player-base-research__techs">
+        <PlayerBaseResearchTree v-if="selectedTab === 'tree'" :techs="techs" v-model:selected-tech="selectedTech" />
+        <PlayerBaseResearchList v-else-if="selectedTab === 'list'" :techs="techs" v-model:selected-tech="selectedTech" />
+      </div>
     </div>
     <div class="player-base-research__right">
-      <!-- Active research -->
-      <!-- Selected technology details -->
+      <PlayerBaseResearchTechDetails :selectedTech="selectedTech ? techs[selectedTech]! : null" />
     </div>
   </div>
 </template>
@@ -15,6 +20,10 @@ import type { Technology } from "@/api/generated/types";
 import { useResearchStore } from "@/stores/researchStore";
 import { onMounted, ref } from "vue";
 import PlayerBaseResearchTree from "@/components/page_parts/player_base/player_base_research/PlayerBaseResearchTree.vue";
+import UITabsSelector from "@/components/ui/UITabsSelector.vue";
+import PlayerBaseResearchTechDetails from "@/components/page_parts/player_base/player_base_research/PlayerBaseResearchTechDetails.vue";
+
+// DATA
 
 type TechWithPosition = Technology & { row: number; column: number };
 
@@ -48,21 +57,49 @@ function loadData() {
     }
   });
 }
+
+// TABS
+const TABS = [
+  {
+    id: "list",
+    name: "Список",
+  },
+  {
+    id: "tree",
+    name: "Дерево",
+  },
+];
+
+const selectedTab = ref("tree");
+
+// SELECTED TECH
+const selectedTech = ref<string | null>(null);
 </script>
 
 <style lang="scss" scoped>
 .player-base-research {
   flex-grow: 1;
   display: flex;
-  align-items: flex-end;
+  // align-items: flex-end;
 
   background: #0a0c12e6;
   margin-top: -40px;
   padding-top: calc(40px + 16px);
   z-index: 1;
 
-  &__ {
-    //
+  &__left {
+    padding-inline: 24px 4px;
+    overflow: auto;
+  }
+
+  &__switcher {
+    display: flex;
+    margin-bottom: 8px;
+  }
+
+  &__right {
+    padding-bottom: 10px;
+    padding-right: 24px;
   }
 }
 </style>

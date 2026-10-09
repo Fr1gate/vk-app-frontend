@@ -3,10 +3,12 @@
     ref="tech"
     class="tech-node"
     :class="{
+      'tech-node_selected': isSelected,
       'tech-node_highlighted': !isOutside,
       'tech-node_prev': isPrevTech,
       'tech-node_next': isNextTech,
     }"
+    @click="handleClick"
   >
     {{ tech.name }}
   </div>
@@ -19,6 +21,7 @@ import { useTemplateRef, watch } from "vue";
 
 interface Props {
   tech: Technology;
+  isSelected: boolean;
   isPrevTech: boolean;
   isNextTech: boolean;
 }
@@ -28,6 +31,7 @@ const techRef = useTemplateRef("tech");
 
 const emit = defineEmits<{
   highlight: [boolean];
+  select: [boolean];
 }>();
 
 const { isOutside } = useMouseInElement(techRef);
@@ -35,6 +39,10 @@ const { isOutside } = useMouseInElement(techRef);
 watch(isOutside, (newValue) => {
   emit("highlight", !newValue);
 });
+
+function handleClick() {
+  emit("select", true);
+}
 </script>
 
 <style lang="scss" scoped>
@@ -55,7 +63,8 @@ watch(isOutside, (newValue) => {
   cursor: pointer;
   user-select: none;
 
-  &_highlighted {
+  &_highlighted,
+  &_selected {
     border-color: var(--theme-accent);
   }
 

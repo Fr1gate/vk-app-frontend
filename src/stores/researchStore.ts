@@ -20,6 +20,11 @@ export const useResearchStore = defineStore("researchStore", () => {
     });
   }
 
+  function getBranchName(branchId: string) {
+    if (!branchId || !researchData.value) return "";
+    return researchData.value?.branches.find((b) => b.id === branchId)?.name;
+  }
+
   function formTree() {
     // one row = one branch
     // technology has to be after its requirements. Arrows cannot go backwards
@@ -78,6 +83,7 @@ export const useResearchStore = defineStore("researchStore", () => {
   return {
     loadData,
     formTree,
+    getBranchName,
     researchData,
   };
 });
