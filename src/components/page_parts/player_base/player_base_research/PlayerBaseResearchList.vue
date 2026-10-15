@@ -1,11 +1,218 @@
 <template>
-  <div></div>
+  <div class="techs-list">
+    <div v-if="currentResearch" class="techs-list__group">
+      <div class="techs-list__group-label">В работе</div>
+      <div class="techs-list__current-tech" @click="selectedTech = currentResearch.id">
+        <div class="techs-list__current-tech-head">
+          <div class="techs-list__current-tech-code">{{ currentResearch.code }}</div>
+          <div class="techs-list__current-tech-name">{{ currentResearch.name }}</div>
+          <div class="techs-list__current-tech-branch">{{ researchStore.getBranchName(currentResearch.branch_id) }}</div>
+        </div>
+        <div class="techs-list__current-tech-progress">
+          <UIProgressBar :percent="50" color="var(--theme-accent)" />
+        </div>
+        <div class="techs-list__current-tech-info">62% · осталось 1ч 12м</div>
+      </div>
+    </div>
+    <div class="techs-list__group">
+      <div class="techs-list__group-label">Доступно сейчас · {{ unlockedTechs.length }}</div>
+      <div class="techs-list__list">
+        <div v-for="tech in unlockedTechs" :key="tech.id" class="techs-list__tech" @click="selectedTech = tech.id">
+          <div class="techs-list__tech-left">
+            <div class="techs-list__tech-code">{{ tech.code }}</div>
+            <div class="techs-list__tech-name">{{ tech.name }}</div>
+            <div class="techs-list__tech-branch">{{ researchStore.getBranchName(tech.branch_id) }}</div>
+          </div>
+          <div class="techs-list__tech-right">
+            <div class="techs-list__tech-cost">2ч</div>
+            <div class="techs-list__tech-cost">514млн</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-//
+import type { Technology } from "@/api/generated/types";
+import UIProgressBar from "@/components/ui/UIProgressBar.vue";
+import { useResearchStore } from "@/stores/researchStore";
+import { computed, ref, watch } from "vue";
+
+const { techs } = defineProps<{
+  techs: Record<string, Technology>;
+}>();
+
+const selectedTech = defineModel("selectedTech");
+
+const unlockedTechs = computed<Technology[]>(() => {
+  return Object.values(techs).filter((curTech) => curTech.status === "available");
+});
+
+const currentResearch = ref<Technology | null>(null);
+
+const researchStore = useResearchStore();
+
+watch(
+  () => techs,
+  (techs) => {
+    console.log("techs");
+    if (techs) currentResearch.value = Object.values(techs)[0]!;
+  },
+  {
+    immediate: true,
+  },
+);
 </script>
 
 <style lang="scss" scoped>
-//
+.techs-list {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  padding-right: 6px;
+
+  &__group {
+    display: flex;
+    flex-direction: column;
+
+    &:not(:last-child) {
+      margin-bottom: 12px;
+    }
+  }
+
+  &__group-label {
+    text-transform: uppercase;
+    font-size: 10px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: var(--font-muted);
+  }
+
+  &__current-tech {
+    cursor: pointer;
+    border: 1px solid var(--theme-stroke);
+    background: var(--theme-surface);
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  &__current-tech-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+
+  &__current-tech-code {
+    background-color: var(--theme-accent-deep);
+    height: 24px;
+    width: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    color: var(--theme-accent-hi);
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  &__current-tech-name {
+    color: var(--font-primary);
+    font-weight: 600;
+    font-size: 13px;
+  }
+
+  &__current-tech-branch {
+    color: var(--font-secondary);
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  &__current-tech-progress {
+    margin-bottom: 6px;
+  }
+
+  &__current-tech-info {
+    color: var(--font-secondary);
+    font-size: 10px;
+    font-weight: 500;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__tech {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    padding-block: 5px;
+    padding-inline: 4px;
+
+    &:hover {
+      background-color: var(--theme-accent-glow);
+    }
+
+    &:not(:last-child) {
+      border-bottom: 1px solid var(--theme-divider);
+    }
+  }
+
+  &__tech-left {
+    display: flex;
+    gap: 6px;
+  }
+
+  &__tech-code {
+    background-color: var(--theme-accent-deep);
+    height: 24px;
+    width: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    color: var(--theme-accent-hi);
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  &__tech-name {
+    color: var(--font-primary);
+    font-weight: 600;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+  }
+
+  &__tech-branch {
+    color: var(--font-secondary);
+    font-size: 11px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+  }
+
+  &__tech-right {
+    display: flex;
+    color: var(--font-secondary);
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  &__tech-cost {
+    display: flex;
+    &:not(:last-child) {
+      &::after {
+        content: "·";
+        display: flex;
+        margin-inline: 2px;
+      }
+    }
+  }
+}
 </style>

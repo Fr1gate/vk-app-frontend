@@ -1,5 +1,11 @@
 <template>
-  <div class="player-base">
+  <div
+    class="player-base"
+    :class="{
+      'player-base_moon': themeStore.currentTheme === 'moon',
+      'player-base_mars': themeStore.currentTheme === 'mars',
+    }"
+  >
     <UILoaderModal v-if="baseStore.isInitialLoading" />
     <template v-else>
       <PlayerBaseHeader :energy="baseStore.powerBalance" :fuel="baseStore.fuelTotal" :money="baseStore.money" />
@@ -22,7 +28,6 @@ onMounted(() => {
   baseStore.loadBase("site_earth");
 });
 
-// maybe redundant
 watch(
   () => baseStore.base?.body,
   (body) => {
@@ -38,9 +43,17 @@ watch(
   width: 100vw;
   display: flex;
   flex-direction: column;
-  background-image: url("@/assets/bg/bases/bg-earth.webp");
+  background-image: url("@/assets/bg/bases/bg-earth-1920.webp");
   background-size: cover;
   position: relative;
+
+  &_moon {
+    background-image: url("@/assets/bg/bases/bg-moon-1920.webp");
+  }
+
+  &_mars {
+    background-image: url("@/assets/bg/bases/bg-mars-1920.webp");
+  }
 
   &__header {
     height: 30px;

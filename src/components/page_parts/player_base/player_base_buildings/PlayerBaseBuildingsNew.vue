@@ -142,6 +142,12 @@ const costEntries = computed(() =>
 <style lang="scss" scoped>
 @use "@/styles/mixins";
 
+@media (max-width: 999px) {
+  .new-building-modal {
+    max-width: calc(100vw - 100px);
+  }
+}
+
 .new-building {
   width: 140px;
   height: 112px;

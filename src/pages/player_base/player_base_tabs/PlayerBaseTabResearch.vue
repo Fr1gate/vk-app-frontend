@@ -20,6 +20,7 @@ import type { Technology } from "@/api/generated/types";
 import { useResearchStore } from "@/stores/researchStore";
 import { onMounted, ref } from "vue";
 import PlayerBaseResearchTree from "@/components/page_parts/player_base/player_base_research/PlayerBaseResearchTree.vue";
+import PlayerBaseResearchList from "@/components/page_parts/player_base/player_base_research/PlayerBaseResearchList.vue";
 import UITabsSelector from "@/components/ui/UITabsSelector.vue";
 import PlayerBaseResearchTechDetails from "@/components/page_parts/player_base/player_base_research/PlayerBaseResearchTechDetails.vue";
 
@@ -90,6 +91,7 @@ const selectedTech = ref<string | null>(null);
   &__left {
     padding-inline: 24px 4px;
     overflow: auto;
+    flex-grow: 1;
   }
 
   &__switcher {

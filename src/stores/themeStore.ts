@@ -11,6 +11,7 @@ export const useThemeStore = defineStore("themeStore", () => {
   */
   function setTheme(theme: Themes) {
     document.body.setAttribute("data-theme", theme);
+    currentTheme.value = theme;
   }
 
   return {

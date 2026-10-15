@@ -11,14 +11,12 @@ export type SiteId = Parameters<typeof api.bases.basesDetail>[0];
 
 export const HOME_SITE_ID: SiteId = "site_earth";
 
-/** Ресурс базы для панелей: id, имя из справочника и количество. */
 export interface ResourceItem {
   id: string;
   name: string;
   amount: number;
 }
 
-/** Пустые корзины склада — чтобы `storage.solid.used` не требовал проверок на undefined. */
 const EMPTY_STORAGE = {
   solid: { used: 0, capacity: 0 },
   liquid: { used: 0, capacity: 0 },
@@ -36,10 +34,7 @@ export const usePlayerBaseStore = defineStore("playerBase", () => {
 
   const base = computed(() => bases.value[activeSiteId.value] ?? null);
 
-  async function loadBase(
-    siteId: SiteId = activeSiteId.value,
-    force = false,
-  ): Promise<PlayerBase | null> {
+  async function loadBase(siteId: SiteId = activeSiteId.value, force = false): Promise<PlayerBase | null> {
     if (!force && bases.value[siteId]) return bases.value[siteId];
     const pending = inflight.get(siteId);
     if (pending) return pending;
@@ -81,9 +76,7 @@ export const usePlayerBaseStore = defineStore("playerBase", () => {
   }));
 
   const money = computed(() => resourcesById.value["res_money"] ?? 0);
-  const fuelTotal = computed(() =>
-    Object.values(fuel.value).reduce((sum, amount) => sum + amount, 0),
-  );
+  const fuelTotal = computed(() => Object.values(fuel.value).reduce((sum, amount) => sum + amount, 0));
   const powerBalance = computed(() => {
     const power = base.value?.production.power;
     return power ? power.generation_per_hour - power.demand_per_hour : 0;

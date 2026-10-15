@@ -4,7 +4,7 @@
   </div>
   <Teleport to="body">
     <div ref="body" v-show="isShowed" class="dropdown__content" :style="contentStyles">
-      <slot name="content"></slot>
+      <slot name="content" :close="close"></slot>
     </div>
   </Teleport>
 </template>
@@ -37,7 +37,6 @@ onMounted(() => {
 function toggle() {
   calculatePosition();
   isShowed.value = !isShowed.value;
-  console.log("toggle", isShowed.value);
 }
 
 function close() {
