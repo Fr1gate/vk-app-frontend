@@ -48,6 +48,7 @@ const SIZES = {
   techWidth: 200,
   gapHorizontal: 6,
   gapVertical: 6,
+  lineWidth: 2,
 };
 
 const { techs } = defineProps<{
@@ -93,7 +94,7 @@ const prevLinks = computed<Record<string, linkStyles>>(() => {
     if (rowDiff > 0) {
       // right is below, highway is just under the left (top) card
       links[leftTech.id]!.link2 = {
-        left: `${SIZES.techWidth * (rightTech.column - 1) + SIZES.gapHorizontal * (rightTech.column - 1) - SIZES.gapHorizontal / 2}px`,
+        left: `${SIZES.techWidth * (rightTech.column - 1) + SIZES.gapHorizontal * (rightTech.column - 1) - SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
         top: `${SIZES.techHeight * (rightTech.row - 1) + SIZES.gapVertical * (rightTech.row - 1) + SIZES.techHeight / 2}px`,
         width: "2px",
         height: `${SIZES.techHeight * rowDiff + SIZES.gapVertical * rowDiff - SIZES.techHeight / 2 - SIZES.gapVertical / 2}px`,
@@ -106,7 +107,7 @@ const prevLinks = computed<Record<string, linkStyles>>(() => {
         height: "2px",
       };
       links[leftTech.id]!.link4 = {
-        left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2}px`,
+        left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
         top: `${SIZES.techHeight * (leftTech.row - 1) + SIZES.gapVertical * (leftTech.row - 1) + SIZES.techHeight / 2}px`,
         width: "2px",
         height: `${SIZES.techHeight / 2 + SIZES.gapVertical / 2}px`,
@@ -114,7 +115,7 @@ const prevLinks = computed<Record<string, linkStyles>>(() => {
     } else if (rowDiff < 0) {
       // right is above, highway is just under the right (top) card
       links[leftTech.id]!.link2 = {
-        left: `${SIZES.techWidth * (rightTech.column - 1) + SIZES.gapHorizontal * (rightTech.column - 1) - SIZES.gapHorizontal / 2}px`,
+        left: `${SIZES.techWidth * (rightTech.column - 1) + SIZES.gapHorizontal * (rightTech.column - 1) - SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
         top: `${SIZES.techHeight * (rightTech.row - 1) + SIZES.gapVertical * (rightTech.row - 1) + SIZES.techHeight / 2}px`,
         width: "2px",
         height: `${SIZES.techHeight / 2 + SIZES.gapVertical / 2 + 2}px`,
@@ -126,7 +127,7 @@ const prevLinks = computed<Record<string, linkStyles>>(() => {
         height: "2px",
       };
       links[leftTech.id]!.link4 = {
-        left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2}px`,
+        left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
         top: `${SIZES.techHeight * (leftTech.row - 1) + SIZES.gapVertical * (leftTech.row - 1) + SIZES.techHeight / 2 + 2}px`,
         width: "2px",
         height: `${SIZES.techHeight * Math.abs(rowDiff) + SIZES.gapVertical * Math.abs(rowDiff) - SIZES.techHeight / 2 - SIZES.gapVertical / 2}px`,
@@ -136,7 +137,7 @@ const prevLinks = computed<Record<string, linkStyles>>(() => {
       // on the same level, highway is still below the row
       if (colDiff > 1) {
         links[leftTech.id]!.link2 = {
-          left: `${SIZES.techWidth * (rightTech.column - 1) + SIZES.gapHorizontal * (rightTech.column - 1) - SIZES.gapHorizontal / 2}px`,
+          left: `${SIZES.techWidth * (rightTech.column - 1) + SIZES.gapHorizontal * (rightTech.column - 1) - SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
           top: `${SIZES.techHeight * (rightTech.row - 1) + SIZES.gapVertical * (rightTech.row - 1) + SIZES.techHeight / 2}px`,
           width: "2px",
           height: `${SIZES.techHeight / 2 + SIZES.gapVertical / 2 + 2}px`,
@@ -148,7 +149,7 @@ const prevLinks = computed<Record<string, linkStyles>>(() => {
           height: "2px",
         };
         links[leftTech.id]!.link4 = {
-          left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2}px`,
+          left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
           top: `${SIZES.techHeight * (leftTech.row - 1) + SIZES.gapVertical * (leftTech.row - 1) + SIZES.techHeight / 2}px`,
           width: "2px",
           height: `${SIZES.techHeight / 2 + SIZES.gapVertical / 2}px`,
@@ -192,7 +193,7 @@ const nextLinks = computed<Record<string, linkStyles>>(() => {
     if (rowDiff > 0) {
       // right is below, highway is just under the left (top) card
       links[rightTech.id]!.link2 = {
-        left: `${SIZES.techWidth * (rightTech.column - 1) + SIZES.gapHorizontal * (rightTech.column - 1) - SIZES.gapHorizontal / 2}px`,
+        left: `${SIZES.techWidth * (rightTech.column - 1) + SIZES.gapHorizontal * (rightTech.column - 1) - SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
         top: `${SIZES.techHeight * (rightTech.row - 1) + SIZES.gapVertical * (rightTech.row - 1) + SIZES.techHeight / 2}px`,
         width: "2px",
         height: `${SIZES.techHeight * rowDiff + SIZES.gapVertical * rowDiff - SIZES.techHeight / 2 - SIZES.gapVertical / 2}px`,
@@ -205,7 +206,7 @@ const nextLinks = computed<Record<string, linkStyles>>(() => {
         height: "2px",
       };
       links[rightTech.id]!.link4 = {
-        left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2}px`,
+        left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
         top: `${SIZES.techHeight * (leftTech.row - 1) + SIZES.gapVertical * (leftTech.row - 1) + SIZES.techHeight / 2}px`,
         width: "2px",
         height: `${SIZES.techHeight / 2 + SIZES.gapVertical / 2}px`,
@@ -213,7 +214,7 @@ const nextLinks = computed<Record<string, linkStyles>>(() => {
     } else if (rowDiff < 0) {
       // right is above, highway is just under the right (top) card
       links[rightTech.id]!.link2 = {
-        left: `${SIZES.techWidth * (rightTech.column - 1) + SIZES.gapHorizontal * (rightTech.column - 1) - SIZES.gapHorizontal / 2}px`,
+        left: `${SIZES.techWidth * (rightTech.column - 1) + SIZES.gapHorizontal * (rightTech.column - 1) - SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
         top: `${SIZES.techHeight * (rightTech.row - 1) + SIZES.gapVertical * (rightTech.row - 1) + SIZES.techHeight / 2}px`,
         width: "2px",
         height: `${SIZES.techHeight / 2 + SIZES.gapVertical / 2 + 2}px`, // +2 to cover the highway line
@@ -225,7 +226,7 @@ const nextLinks = computed<Record<string, linkStyles>>(() => {
         height: "2px",
       };
       links[rightTech.id]!.link4 = {
-        left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2}px`,
+        left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
         top: `${SIZES.techHeight * (leftTech.row - 1) + SIZES.gapVertical * (leftTech.row - 1) + SIZES.techHeight / 2 + 2}px`,
         width: "2px",
         height: `${SIZES.techHeight * Math.abs(rowDiff) + SIZES.gapVertical * Math.abs(rowDiff) - SIZES.techHeight / 2 - SIZES.gapVertical / 2}px`,
@@ -235,7 +236,7 @@ const nextLinks = computed<Record<string, linkStyles>>(() => {
       // on the same level, highway is still below the row
       if (colDiff > 1) {
         links[rightTech.id]!.link2 = {
-          left: `${SIZES.techWidth * (rightTech.column - 1) + SIZES.gapHorizontal * (rightTech.column - 1) - SIZES.gapHorizontal / 2}px`,
+          left: `${SIZES.techWidth * (rightTech.column - 1) + SIZES.gapHorizontal * (rightTech.column - 1) - SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
           top: `${SIZES.techHeight * (rightTech.row - 1) + SIZES.gapVertical * (rightTech.row - 1) + SIZES.techHeight / 2}px`,
           width: "2px",
           height: `${SIZES.techHeight / 2 + SIZES.gapVertical / 2 + 2}px`, // +2 to cover the highway line
@@ -247,7 +248,7 @@ const nextLinks = computed<Record<string, linkStyles>>(() => {
           height: "2px",
         };
         links[rightTech.id]!.link4 = {
-          left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2}px`,
+          left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
           top: `${SIZES.techHeight * (leftTech.row - 1) + SIZES.gapVertical * (leftTech.row - 1) + SIZES.techHeight / 2}px`,
           width: "2px",
           height: `${SIZES.techHeight / 2 + SIZES.gapVertical / 2}px`,
