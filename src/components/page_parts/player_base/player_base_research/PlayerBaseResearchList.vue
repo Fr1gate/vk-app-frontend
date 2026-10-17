@@ -9,9 +9,9 @@
           <div class="techs-list__current-tech-branch">{{ researchStore.getBranchName(currentResearch.branch_id) }}</div>
         </div>
         <div class="techs-list__current-tech-progress">
-          <UIProgressBar :percent="50" color="var(--theme-accent)" />
+          <UIProgressBar :percent="progressPercent" color="var(--theme-accent)" />
         </div>
-        <div class="techs-list__current-tech-info">62% · осталось 1ч 12м</div>
+        <div class="techs-list__current-tech-info">{{ Math.round(progressPercent) }}% · осталось {{ remainingString }}</div>
       </div>
     </div>
     <div class="techs-list__group">
@@ -24,8 +24,8 @@
             <div class="techs-list__tech-branch">{{ researchStore.getBranchName(tech.branch_id) }}</div>
           </div>
           <div class="techs-list__tech-right">
-            <div class="techs-list__tech-cost">2ч</div>
-            <div class="techs-list__tech-cost">514млн</div>
+            <div class="techs-list__tech-cost">{{ tech.cost.hours }} ч</div>
+            <div class="techs-list__tech-cost">{{ formatAmount(tech.cost.money) }}</div>
           </div>
         </div>
       </div>
@@ -37,7 +37,10 @@
 import type { Technology } from "@/api/generated/types";
 import UIProgressBar from "@/components/ui/UIProgressBar.vue";
 import { useResearchStore } from "@/stores/researchStore";
-import { computed, ref, watch } from "vue";
+import { formatAmount } from "@/utils/formatAmount";
+import { computed, onUnmounted, ref, watch } from "vue";
+
+const TIMER_UPDATE_INTERVAL = 200;
 
 const { techs } = defineProps<{
   techs: Record<string, Technology>;
@@ -45,24 +48,46 @@ const { techs } = defineProps<{
 
 const selectedTech = defineModel("selectedTech");
 
+const researchStore = useResearchStore();
+
+const currentResearch = computed(() => Object.values(techs).find((tech) => tech.status === "in_progress") ?? null);
+
 const unlockedTechs = computed<Technology[]>(() => {
   return Object.values(techs).filter((curTech) => curTech.status === "available");
 });
 
-const currentResearch = ref<Technology | null>(null);
-
-const researchStore = useResearchStore();
+const now = ref(Date.now());
+const timer = ref<ReturnType<typeof setInterval>>();
 
 watch(
-  () => techs,
-  (techs) => {
-    console.log("techs");
-    if (techs) currentResearch.value = Object.values(techs)[0]!;
+  () => currentResearch.value?.id,
+  (techId) => {
+    clearInterval(timer.value);
+    timer.value = techId ? setInterval(() => (now.value = Date.now()), TIMER_UPDATE_INTERVAL) : undefined;
   },
-  {
-    immediate: true,
-  },
+  { immediate: true },
 );
+
+onUnmounted(() => clearInterval(timer.value));
+
+const activeResearch = computed(() => researchStore.activeResearch.find((item) => item.tech_id === currentResearch.value?.id) ?? null);
+
+const progressPercent = computed(() => {
+  if (!activeResearch.value) return 0;
+  const started = new Date(activeResearch.value.started_at).getTime();
+  const completes = new Date(activeResearch.value.completes_at).getTime();
+  if (completes <= started) return 100;
+  return Math.min(100, Math.max(0, ((now.value - started) / (completes - started)) * 100));
+});
+
+const remainingString = computed(() => {
+  if (!activeResearch.value) return "";
+  const remainingMs = Math.max(0, new Date(activeResearch.value.completes_at).getTime() - now.value);
+  const totalMinutes = Math.ceil(remainingMs / 60_000);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return hours > 0 ? `${hours}ч ${minutes}м` : `${minutes}м`;
+});
 </script>
 
 <style lang="scss" scoped>
@@ -71,6 +96,7 @@ watch(
   display: flex;
   flex-direction: column;
   overflow: auto;
+  min-height: 0;
   padding-right: 6px;
 
   &__group {

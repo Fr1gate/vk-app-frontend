@@ -1,13 +1,14 @@
 import { api } from "@/api";
 import type { TechnologiesResponse, Technology } from "@/api/generated/types";
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { flattenDeep } from "lodash-es";
 
 export const useResearchStore = defineStore("researchStore", () => {
   const researchData = ref<TechnologiesResponse | null>(null);
   const isLoading = ref<boolean>(false);
   const loadedInitially = ref<boolean>(false);
+  const activeResearch = computed(() => researchData.value?.active_research ?? []);
 
   function loadData() {
     isLoading.value = true;
@@ -17,6 +18,10 @@ export const useResearchStore = defineStore("researchStore", () => {
       isLoading.value = false;
       loadedInitially.value = true;
     });
+  }
+
+  function startResearch(techId: string, siteId?: string) {
+    return api.technologies.researchCreate(techId, { site_id: siteId });
   }
 
   function getBranchName(branchId: string) {
@@ -81,8 +86,10 @@ export const useResearchStore = defineStore("researchStore", () => {
 
   return {
     loadData,
+    startResearch,
     formTree,
     getBranchName,
     researchData,
+    activeResearch,
   };
 });

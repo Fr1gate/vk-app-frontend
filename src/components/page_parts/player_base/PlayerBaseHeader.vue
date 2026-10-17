@@ -32,6 +32,10 @@
         </template>
       </UIDropdown>
       <div class="player-base-header__right">
+        <button class="player-base-header__fullscreen" @click="handleFullscreen">
+          <Minimize2 v-if="isFullscreen" color="var(--theme-accent)" />
+          <Maximize2 v-else color="var(--theme-accent)" />
+        </button>
         <PlayerBaseShipsSelector />
       </div>
     </div>
@@ -57,12 +61,13 @@
 </template>
 
 <script lang="ts" setup>
-import { RussianRuble, Droplets, Zap } from "@lucide/vue";
+import { Maximize2, Minimize2, RussianRuble, Droplets, Zap } from "@lucide/vue";
 import PlayerBaseShipsSelector from "./PlayerBaseShipsSelector.vue";
 import PlayerBaseBasesSelector from "./PlayerBaseBasesSelector.vue";
-import { computed } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import UIDropdown from "@/components/ui/UIDropdown.vue";
 import PlayerBaseResources from "./PlayerBaseResources.vue";
+import { isFullscreenActive, toggleFullscreen } from "@/services/fullscreen";
 import { ROUTES_NAMES } from "@/constants/RoutesNames.ts";
 
 interface Props {
@@ -72,6 +77,19 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const isFullscreen = ref(isFullscreenActive());
+
+function handleFullscreenChange() {
+  isFullscreen.value = isFullscreenActive();
+}
+
+function handleFullscreen() {
+  void toggleFullscreen();
+}
+
+onMounted(() => document.addEventListener("fullscreenchange", handleFullscreenChange));
+onUnmounted(() => document.removeEventListener("fullscreenchange", handleFullscreenChange));
 
 const moneyStr = computed(() => {
   return new Intl.NumberFormat("ru-RU", {
@@ -98,11 +116,11 @@ const energyStr = computed(() => {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   background-color: var(--theme-fill);
-  box-sizing: content-box;
-  height: 3rem;
+  box-sizing: border-box;
+  height: 3.5rem;
   align-items: center;
   justify-content: space-between;
-  padding-inline: 1.5rem;
+  padding: 0.5rem 3rem;
   border-bottom: 1px solid var(--theme-accent);
 
   &__wrapper {
@@ -122,6 +140,27 @@ const energyStr = computed(() => {
 
   &__right {
     justify-content: end;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__fullscreen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    flex-shrink: 0;
+    border: 1px solid var(--theme-stroke);
+    border-radius: 0.75rem;
+    background: var(--theme-active);
+    cursor: pointer;
+
+    svg {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
   }
 
   &__resource {

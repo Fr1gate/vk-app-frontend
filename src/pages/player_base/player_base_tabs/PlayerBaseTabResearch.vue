@@ -18,7 +18,8 @@
 <script lang="ts" setup>
 import type { Technology } from "@/api/generated/types";
 import { useResearchStore } from "@/stores/researchStore";
-import { onMounted, ref } from "vue";
+import { researchService } from "@/services/researchService";
+import { onMounted, ref, watch } from "vue";
 import PlayerBaseResearchTree from "@/components/page_parts/player_base/player_base_research/PlayerBaseResearchTree.vue";
 import PlayerBaseResearchList from "@/components/page_parts/player_base/player_base_research/PlayerBaseResearchList.vue";
 import UITabsSelector from "@/components/ui/UITabsSelector.vue";
@@ -29,16 +30,18 @@ import PlayerBaseResearchTechDetails from "@/components/page_parts/player_base/p
 type TechWithPosition = Technology & { row: number; column: number };
 
 const researchStore = useResearchStore();
-const techsPositions: Record<string, { row: number; column: number }> = {};
 const techs = ref<Record<string, TechWithPosition>>({});
 
 onMounted(() => {
-  loadData();
+  researchService.load();
 });
 
-function loadData() {
-  researchStore.loadData().then(() => {
-    const tree = researchStore.formTree()!;
+watch(
+  () => researchStore.researchData,
+  () => {
+    const tree = researchStore.formTree();
+    if (!tree) return;
+
     techs.value = {};
 
     let curRow = 0;
@@ -50,14 +53,10 @@ function loadData() {
           row: curRow,
           column: +pointer,
         };
-        techsPositions[tech.id] = {
-          row: curRow,
-          column: +pointer,
-        };
       }
     }
-  });
-}
+  },
+);
 
 // TABS
 const TABS = [
@@ -78,20 +77,27 @@ const selectedTech = ref<string | null>(null);
 </script>
 
 <style lang="scss" scoped>
+$sub-menu-height: 2.5rem;
+
 .player-base-research {
   flex-grow: 1;
   display: flex;
   // align-items: flex-end;
 
   background: #0a0c12e6;
-  margin-top: -40px;
-  padding-top: calc(40px + 16px);
+  margin-top: calc(-1 * $sub-menu-height);
+  padding-top: calc($sub-menu-height + 1rem);
   z-index: 1;
+  min-height: 0;
+  overflow: hidden;
 
   &__left {
     padding-inline: 24px 4px;
-    overflow: auto;
+    display: flex;
+    flex-direction: column;
     flex-grow: 1;
+    min-height: 0;
+    min-width: 0;
   }
 
   &__switcher {
@@ -99,9 +105,18 @@ const selectedTech = ref<string | null>(null);
     margin-bottom: 8px;
   }
 
+  &__techs {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-height: 0;
+    min-width: 0;
+  }
+
   &__right {
     padding-bottom: 10px;
     padding-right: 24px;
+    min-height: 0;
   }
 }
 </style>

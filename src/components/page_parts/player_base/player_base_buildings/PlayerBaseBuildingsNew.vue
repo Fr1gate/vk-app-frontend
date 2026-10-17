@@ -15,7 +15,7 @@
         <div class="new-building-modal__body">
           <div class="new-building-modal__list">
             <div
-              v-for="building in availableBuildings"
+              v-for="building in constructibleBuildings"
               :key="building.building_id"
               class="new-building-modal__item"
               :class="{ 'new-building-modal__item_active': selectedBuilding === building }"
@@ -73,7 +73,7 @@ import { useGameDictionaryStore } from "@/stores/gameDictionaryStore";
 import { usePlayerBaseStore } from "@/stores/playerBaseStore";
 import { formatAmount } from "@/utils/formatAmount";
 import { Plus, X } from "@lucide/vue";
-import { computed, onMounted, ref, useTemplateRef } from "vue";
+import { computed, ref, useTemplateRef, watch } from "vue";
 
 interface Props {
   availableBuildings: BuildingAvailable[];
@@ -101,11 +101,20 @@ const portraitUrl = computed(() => {
   );
 });
 
-onMounted(() => {
-  if (availableBuildings[0]) {
-    selectedBuilding.value = availableBuildings[0];
-  }
-});
+const constructibleBuildings = computed(() =>
+  availableBuildings.filter(
+    (building) => !baseStore.buildings.some((built) => built.building_id === building.building_id),
+  ),
+);
+
+watch(
+  constructibleBuildings,
+  (list) => {
+    if (list.some((building) => building.building_id === selectedBuilding.value?.building_id)) return;
+    selectedBuilding.value = list[0] ?? null;
+  },
+  { immediate: true },
+);
 
 function handleSelectBuilding(building: BuildingAvailable) {
   selectedBuilding.value = building;
@@ -146,10 +155,7 @@ const costEntries = computed(() =>
 );
 
 const constructionAvailable = computed(() => {
-  const building = selectedBuilding.value;
-  if (!building) return false;
-  if (building.level >= building.max_level) return false;
-  if (baseStore.buildingsInConstruction.some((item) => item.building_id === building.building_id)) return false;
+  if (!selectedBuilding.value) return false;
   return costEntries.value.every((cost) => cost.isEnough);
 });
 </script>

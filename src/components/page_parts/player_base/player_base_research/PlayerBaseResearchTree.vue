@@ -1,24 +1,26 @@
 <template>
-  <div class="tech-tree" @click="handleSelect(null)">
+  <div class="tech-tree" ref="tree" @click="handleSelect(null)">
     <template v-for="tech in Object.values(techs)" :key="tech.id">
       <PlayerBaseResearchTreeNode
         :tech="tech"
         :is-selected="selectedTech === tech.id"
         :is-prev-tech="!!prevTechs[tech.id]"
         :is-next-tech="!!nextTechs[tech.id]"
+        :is-researching="tech.status === 'in_progress'"
+        :research-progress="researchProgress"
         :style="{ gridColumn: tech.column, gridRow: tech.row }"
         @select="handleSelect(tech.id)"
         @click.stop
       />
     </template>
-    <template v-for="[key] in Object.entries(prevTechs)" :key="key">
+    <template v-for="[key] in Object.entries(prevLinks)" :key="key">
       <div class="tech-tree__link tech-tree__link_prev" :style="prevLinks[key]!.link1"></div>
       <div class="tech-tree__link tech-tree__link_prev" :style="prevLinks[key]?.link2"></div>
       <div class="tech-tree__link tech-tree__link_prev" :style="prevLinks[key]?.link3"></div>
       <div class="tech-tree__link tech-tree__link_prev" :style="prevLinks[key]?.link4"></div>
       <div class="tech-tree__link tech-tree__link_prev" :style="prevLinks[key]!.link5"></div>
     </template>
-    <template v-for="[key] in Object.entries(nextTechs)" :key="key">
+    <template v-for="[key] in Object.entries(nextLinks)" :key="key">
       <div class="tech-tree__link tech-tree__link_next" :style="nextLinks[key]!.link1"></div>
       <div class="tech-tree__link tech-tree__link_next" :style="nextLinks[key]?.link2"></div>
       <div class="tech-tree__link tech-tree__link_next" :style="nextLinks[key]?.link3"></div>
@@ -30,9 +32,14 @@
 
 <script lang="ts" setup>
 import type { Technology } from "@/api/generated/types";
-import { computed, ref, type CSSProperties } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, type CSSProperties } from "vue";
 import { flattenDeep } from "lodash-es";
+import { useResearchStore } from "@/stores/researchStore";
 import PlayerBaseResearchTreeNode from "./PlayerBaseResearchTreeNode.vue";
+
+const TIMER_UPDATE_INTERVAL = 200;
+const NODE_GAP = 6;
+const LINK_THICKNESS = 2;
 
 type TechWithPosition = Technology & { row: number; column: number };
 type linkStyles = {
@@ -42,14 +49,7 @@ type linkStyles = {
   link4?: CSSProperties;
   link5?: CSSProperties;
 };
-
-const SIZES = {
-  techHeight: 40,
-  techWidth: 200,
-  gapHorizontal: 6,
-  gapVertical: 6,
-  lineWidth: 2,
-};
+type NodeBox = { x: number; y: number; w: number; h: number };
 
 const { techs } = defineProps<{
   techs: Record<string, TechWithPosition>;
@@ -57,207 +57,122 @@ const { techs } = defineProps<{
 
 const selectedTech = defineModel("selectedTech");
 
+const researchStore = useResearchStore();
+
 const highlightedTech = ref<string | null>(null);
 const prevTechs = ref<Record<string, true>>({});
 const nextTechs = ref<Record<string, true>>({});
 
+const treeRef = useTemplateRef<HTMLElement>("tree");
+const nodeRects = ref<Record<string, NodeBox>>({});
+
+const now = ref(Date.now());
+const timer = ref<ReturnType<typeof setInterval>>();
+
+const researchingTech = computed(() => Object.values(techs).find((tech) => tech.status === "in_progress") ?? null);
+
+watch(
+  () => researchingTech.value?.id,
+  (techId) => {
+    clearInterval(timer.value);
+    timer.value = techId ? setInterval(() => (now.value = Date.now()), TIMER_UPDATE_INTERVAL) : undefined;
+  },
+  { immediate: true },
+);
+
+onUnmounted(() => clearInterval(timer.value));
+
+const researchProgress = computed(() => {
+  if (!researchingTech.value) return 0;
+  const active = researchStore.activeResearch.find((item) => item.tech_id === researchingTech.value!.id);
+  if (!active) return 0;
+  const started = new Date(active.started_at).getTime();
+  const completes = new Date(active.completes_at).getTime();
+  if (completes <= started) return 100;
+  return Math.min(100, Math.max(0, ((now.value - started) / (completes - started)) * 100));
+});
+
+function measureNodes() {
+  const tree = treeRef.value;
+  if (!tree) return;
+
+  const rects: Record<string, NodeBox> = {};
+  for (const node of tree.querySelectorAll<HTMLElement>("[data-tech-id]")) {
+    rects[node.dataset.techId!] = {
+      x: node.offsetLeft,
+      y: node.offsetTop,
+      w: node.offsetWidth,
+      h: node.offsetHeight,
+    };
+  }
+  nodeRects.value = rects;
+}
+
+watch(
+  () => techs,
+  () => nextTick(measureNodes),
+);
+onMounted(() => nextTick(measureNodes));
+
+const toPx = (value: number) => `${value}px`;
+
+function verticalSegment(x: number, fromY: number, toY: number): CSSProperties {
+  return {
+    left: toPx(x),
+    top: toPx(Math.min(fromY, toY)),
+    width: toPx(LINK_THICKNESS),
+    height: toPx(Math.abs(toY - fromY) + LINK_THICKNESS),
+  };
+}
+
+function buildLink(left: NodeBox, right: NodeBox): linkStyles {
+  const half = NODE_GAP / 2;
+  const leftCenterY = left.y + left.h / 2;
+  const rightCenterY = right.y + right.h / 2;
+  const leftStubX = left.x + left.w;
+  const rightStubX = right.x - half;
+
+  const links: linkStyles = {
+    link1: { left: toPx(rightStubX), top: toPx(rightCenterY), width: toPx(half), height: toPx(LINK_THICKNESS) },
+    link5: { left: toPx(leftStubX), top: toPx(leftCenterY), width: toPx(half), height: toPx(LINK_THICKNESS) },
+  };
+
+  const sameRow = left.y === right.y;
+  const adjacent = right.x - leftStubX <= NODE_GAP;
+  if (sameRow && adjacent) return links;
+
+  const leftVertX = leftStubX + half;
+  const highwayY = (left.y < right.y ? left.y + left.h : right.y + right.h) + half;
+
+  links.link2 = verticalSegment(rightStubX, rightCenterY, highwayY);
+  links.link3 = { left: toPx(leftVertX), top: toPx(highwayY), width: toPx(rightStubX - leftVertX), height: toPx(LINK_THICKNESS) };
+  links.link4 = verticalSegment(leftVertX, leftCenterY, highwayY);
+  return links;
+}
+
 const prevLinks = computed<Record<string, linkStyles>>(() => {
   if (!highlightedTech.value) return {};
+  const right = nodeRects.value[highlightedTech.value];
+  if (!right) return {};
 
-  const rightTech = techs[highlightedTech.value]!;
   const links: Record<string, linkStyles> = {};
-
-  Object.keys(prevTechs.value).forEach((curTechId) => {
-    const leftTech = techs[curTechId]!;
-    const rowDiff = rightTech.row - leftTech.row;
-    const colDiff = rightTech.column - leftTech.column;
-    // highway is below the top tech
-
-    links[leftTech.id] = {
-      // right tech connector
-      link1: {
-        left: `${SIZES.techWidth * (rightTech.column - 1) + SIZES.gapHorizontal * (rightTech.column - 1)}px`,
-        top: `${SIZES.techHeight * (rightTech.row - 1) + SIZES.gapVertical * (rightTech.row - 1) + SIZES.techHeight / 2}px`,
-        transform: "translateX(-100%)",
-        width: `${SIZES.gapHorizontal / 2}px`,
-        height: "2px",
-      },
-      //left tech connector
-      link5: {
-        left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1)}px`,
-        top: `${SIZES.techHeight * (leftTech.row - 1) + SIZES.gapVertical * (leftTech.row - 1) + SIZES.techHeight / 2}px`,
-        width: `${SIZES.gapHorizontal / 2}px`,
-        height: "2px",
-      },
-    };
-
-    if (rowDiff > 0) {
-      // right is below, highway is just under the left (top) card
-      links[leftTech.id]!.link2 = {
-        left: `${SIZES.techWidth * (rightTech.column - 1) + SIZES.gapHorizontal * (rightTech.column - 1) - SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
-        top: `${SIZES.techHeight * (rightTech.row - 1) + SIZES.gapVertical * (rightTech.row - 1) + SIZES.techHeight / 2}px`,
-        width: "2px",
-        height: `${SIZES.techHeight * rowDiff + SIZES.gapVertical * rowDiff - SIZES.techHeight / 2 - SIZES.gapVertical / 2}px`,
-        transform: "translateY(-100%)",
-      };
-      links[leftTech.id]!.link3 = {
-        left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2}px`,
-        top: `${SIZES.techHeight * (leftTech.row - 1) + SIZES.gapVertical * (leftTech.row - 1) + SIZES.techHeight + SIZES.gapVertical / 2}px`,
-        width: `${SIZES.gapHorizontal * colDiff + SIZES.techWidth * (colDiff - 1) - SIZES.gapHorizontal}px`,
-        height: "2px",
-      };
-      links[leftTech.id]!.link4 = {
-        left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
-        top: `${SIZES.techHeight * (leftTech.row - 1) + SIZES.gapVertical * (leftTech.row - 1) + SIZES.techHeight / 2}px`,
-        width: "2px",
-        height: `${SIZES.techHeight / 2 + SIZES.gapVertical / 2}px`,
-      };
-    } else if (rowDiff < 0) {
-      // right is above, highway is just under the right (top) card
-      links[leftTech.id]!.link2 = {
-        left: `${SIZES.techWidth * (rightTech.column - 1) + SIZES.gapHorizontal * (rightTech.column - 1) - SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
-        top: `${SIZES.techHeight * (rightTech.row - 1) + SIZES.gapVertical * (rightTech.row - 1) + SIZES.techHeight / 2}px`,
-        width: "2px",
-        height: `${SIZES.techHeight / 2 + SIZES.gapVertical / 2 + 2}px`,
-      };
-      links[leftTech.id]!.link3 = {
-        left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2}px`,
-        top: `${SIZES.techHeight * (rightTech.row - 1) + SIZES.gapVertical * (rightTech.row - 1) + SIZES.techHeight + SIZES.gapVertical / 2}px`,
-        width: `${SIZES.gapHorizontal * colDiff + SIZES.techWidth * (colDiff - 1) - SIZES.gapHorizontal}px`,
-        height: "2px",
-      };
-      links[leftTech.id]!.link4 = {
-        left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
-        top: `${SIZES.techHeight * (leftTech.row - 1) + SIZES.gapVertical * (leftTech.row - 1) + SIZES.techHeight / 2 + 2}px`,
-        width: "2px",
-        height: `${SIZES.techHeight * Math.abs(rowDiff) + SIZES.gapVertical * Math.abs(rowDiff) - SIZES.techHeight / 2 - SIZES.gapVertical / 2}px`,
-        transform: "translateY(-100%)",
-      };
-    } else {
-      // on the same level, highway is still below the row
-      if (colDiff > 1) {
-        links[leftTech.id]!.link2 = {
-          left: `${SIZES.techWidth * (rightTech.column - 1) + SIZES.gapHorizontal * (rightTech.column - 1) - SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
-          top: `${SIZES.techHeight * (rightTech.row - 1) + SIZES.gapVertical * (rightTech.row - 1) + SIZES.techHeight / 2}px`,
-          width: "2px",
-          height: `${SIZES.techHeight / 2 + SIZES.gapVertical / 2 + 2}px`,
-        };
-        links[leftTech.id]!.link3 = {
-          left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2}px`,
-          top: `${SIZES.techHeight * (leftTech.row - 1) + SIZES.gapVertical * (leftTech.row - 1) + SIZES.techHeight + SIZES.gapVertical / 2}px`,
-          width: `${SIZES.gapHorizontal * colDiff + SIZES.techWidth * (colDiff - 1) - SIZES.gapHorizontal}px`,
-          height: "2px",
-        };
-        links[leftTech.id]!.link4 = {
-          left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
-          top: `${SIZES.techHeight * (leftTech.row - 1) + SIZES.gapVertical * (leftTech.row - 1) + SIZES.techHeight / 2}px`,
-          width: "2px",
-          height: `${SIZES.techHeight / 2 + SIZES.gapVertical / 2}px`,
-        };
-      }
-    }
-  });
-
+  for (const techId of Object.keys(prevTechs.value)) {
+    const left = nodeRects.value[techId];
+    if (left) links[techId] = buildLink(left, right);
+  }
   return links;
 });
+
 const nextLinks = computed<Record<string, linkStyles>>(() => {
   if (!highlightedTech.value) return {};
+  const left = nodeRects.value[highlightedTech.value];
+  if (!left) return {};
 
-  const leftTech = techs[highlightedTech.value]!;
   const links: Record<string, linkStyles> = {};
-
-  Object.keys(nextTechs.value).forEach((curTechId) => {
-    const rightTech = techs[curTechId]!;
-    const rowDiff = rightTech.row - leftTech.row;
-    const colDiff = rightTech.column - leftTech.column;
-    // highway is below the top tech
-
-    links[rightTech.id] = {
-      // right tech connector
-      link1: {
-        left: `${SIZES.techWidth * (rightTech.column - 1) + SIZES.gapHorizontal * (rightTech.column - 1)}px`,
-        top: `${SIZES.techHeight * (rightTech.row - 1) + SIZES.gapVertical * (rightTech.row - 1) + SIZES.techHeight / 2}px`,
-        transform: "translateX(-100%)",
-        width: `${SIZES.gapHorizontal / 2}px`,
-        height: "2px",
-      },
-      //left tech connector
-      link5: {
-        left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1)}px`,
-        top: `${SIZES.techHeight * (leftTech.row - 1) + SIZES.gapVertical * (leftTech.row - 1) + SIZES.techHeight / 2}px`,
-        width: `${SIZES.gapHorizontal / 2}px`,
-        height: "2px",
-      },
-    };
-
-    if (rowDiff > 0) {
-      // right is below, highway is just under the left (top) card
-      links[rightTech.id]!.link2 = {
-        left: `${SIZES.techWidth * (rightTech.column - 1) + SIZES.gapHorizontal * (rightTech.column - 1) - SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
-        top: `${SIZES.techHeight * (rightTech.row - 1) + SIZES.gapVertical * (rightTech.row - 1) + SIZES.techHeight / 2}px`,
-        width: "2px",
-        height: `${SIZES.techHeight * rowDiff + SIZES.gapVertical * rowDiff - SIZES.techHeight / 2 - SIZES.gapVertical / 2}px`,
-        transform: "translateY(-100%)",
-      };
-      links[rightTech.id]!.link3 = {
-        left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2}px`,
-        top: `${SIZES.techHeight * (leftTech.row - 1) + SIZES.gapVertical * (leftTech.row - 1) + SIZES.techHeight + SIZES.gapVertical / 2}px`,
-        width: `${SIZES.gapHorizontal * colDiff + SIZES.techWidth * (colDiff - 1) - SIZES.gapHorizontal}px`,
-        height: "2px",
-      };
-      links[rightTech.id]!.link4 = {
-        left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
-        top: `${SIZES.techHeight * (leftTech.row - 1) + SIZES.gapVertical * (leftTech.row - 1) + SIZES.techHeight / 2}px`,
-        width: "2px",
-        height: `${SIZES.techHeight / 2 + SIZES.gapVertical / 2}px`,
-      };
-    } else if (rowDiff < 0) {
-      // right is above, highway is just under the right (top) card
-      links[rightTech.id]!.link2 = {
-        left: `${SIZES.techWidth * (rightTech.column - 1) + SIZES.gapHorizontal * (rightTech.column - 1) - SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
-        top: `${SIZES.techHeight * (rightTech.row - 1) + SIZES.gapVertical * (rightTech.row - 1) + SIZES.techHeight / 2}px`,
-        width: "2px",
-        height: `${SIZES.techHeight / 2 + SIZES.gapVertical / 2 + 2}px`, // +2 to cover the highway line
-      };
-      links[rightTech.id]!.link3 = {
-        left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2}px`,
-        top: `${SIZES.techHeight * (rightTech.row - 1) + SIZES.gapVertical * (rightTech.row - 1) + SIZES.techHeight + SIZES.gapVertical / 2}px`,
-        width: `${SIZES.gapHorizontal * colDiff + SIZES.techWidth * (colDiff - 1) - SIZES.gapHorizontal}px`,
-        height: "2px",
-      };
-      links[rightTech.id]!.link4 = {
-        left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
-        top: `${SIZES.techHeight * (leftTech.row - 1) + SIZES.gapVertical * (leftTech.row - 1) + SIZES.techHeight / 2 + 2}px`,
-        width: "2px",
-        height: `${SIZES.techHeight * Math.abs(rowDiff) + SIZES.gapVertical * Math.abs(rowDiff) - SIZES.techHeight / 2 - SIZES.gapVertical / 2}px`,
-        transform: "translateY(-100%)",
-      };
-    } else {
-      // on the same level, highway is still below the row
-      if (colDiff > 1) {
-        links[rightTech.id]!.link2 = {
-          left: `${SIZES.techWidth * (rightTech.column - 1) + SIZES.gapHorizontal * (rightTech.column - 1) - SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
-          top: `${SIZES.techHeight * (rightTech.row - 1) + SIZES.gapVertical * (rightTech.row - 1) + SIZES.techHeight / 2}px`,
-          width: "2px",
-          height: `${SIZES.techHeight / 2 + SIZES.gapVertical / 2 + 2}px`, // +2 to cover the highway line
-        };
-        links[rightTech.id]!.link3 = {
-          left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2}px`,
-          top: `${SIZES.techHeight * (leftTech.row - 1) + SIZES.gapVertical * (leftTech.row - 1) + SIZES.techHeight + SIZES.gapVertical / 2}px`,
-          width: `${SIZES.gapHorizontal * colDiff + SIZES.techWidth * (colDiff - 1) - SIZES.gapHorizontal}px`,
-          height: "2px",
-        };
-        links[rightTech.id]!.link4 = {
-          left: `${SIZES.techWidth * leftTech.column + SIZES.gapHorizontal * (leftTech.column - 1) + SIZES.gapHorizontal / 2 - SIZES.lineWidth / 2}px`,
-          top: `${SIZES.techHeight * (leftTech.row - 1) + SIZES.gapVertical * (leftTech.row - 1) + SIZES.techHeight / 2}px`,
-          width: "2px",
-          height: `${SIZES.techHeight / 2 + SIZES.gapVertical / 2}px`,
-        };
-      }
-      // соседние колонки: link1 и link5 уже образуют прямую, звенья не нужны
-    }
-  });
-
+  for (const techId of Object.keys(nextTechs.value)) {
+    const right = nodeRects.value[techId];
+    if (right) links[techId] = buildLink(left, right);
+  }
   return links;
 });
 
@@ -267,13 +182,11 @@ function handleHighlight(isHighlighted: boolean, techId: string) {
   if (isHighlighted) {
     highlightedTech.value = techId;
     const tech = techs[techId]!;
-    // prev techs
     const prerequisites = flattenDeep(tech.prerequisites);
     for (const preTech of prerequisites) {
       prevTechs.value[preTech] = true;
     }
 
-    // TODO: next techs
     for (const nextTech of tech.dependents) {
       nextTechs.value[nextTech] = true;
     }
@@ -299,13 +212,11 @@ function reset() {
   display: grid;
   grid-auto-columns: auto;
   grid-auto-rows: auto;
+  align-content: start;
   gap: 6px 6px;
   overflow: auto;
-  max-height: calc(100vh - 145px);
-  // scrollbar-width: none;
-  // &::-webkit-scrollbar {
-  //   display: none;
-  // }
+  flex-grow: 1;
+  min-height: 0;
 
   &__link {
     position: absolute;

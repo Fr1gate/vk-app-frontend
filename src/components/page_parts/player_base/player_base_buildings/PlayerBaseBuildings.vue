@@ -1,7 +1,13 @@
 <template>
   <div class="buildings">
     <div class="buildings__carousel">
-      <button v-show="showCarousel" class="buildings__arrow-button" @click="goToPrev">
+      <button
+        class="buildings__arrow-button"
+        :class="{
+          'buildings__arrow-button_hidden': !canPrev,
+        }"
+        @click="goToPrev"
+      >
         <ChevronLeft color="var(--theme-accent)" />
       </button>
       <div class="embla__viewport" ref="emblaRef">
@@ -12,7 +18,13 @@
         </div>
       </div>
       <PlayerBaseBuildNew :available-buildings="availableBuildings" />
-      <button v-show="showCarousel" class="buildings__arrow-button" @click="goToNext">
+      <button
+        class="buildings__arrow-button"
+        :class="{
+          'buildings__arrow-button_hidden': !canNext,
+        }"
+        @click="goToNext"
+      >
         <ChevronRight color="var(--theme-accent)" />
       </button>
     </div>
@@ -26,7 +38,7 @@ import type { BuildingAvailable, BaseBuilding } from "@/api/generated/types";
 import PlayerBaseBuildNew from "./PlayerBaseBuildingsNew.vue";
 import PlayerBaseBuildingsCard from "./PlayerBaseBuildingsCard.vue";
 import { ChevronLeft, ChevronRight } from "@lucide/vue";
-import { computed, nextTick, onMounted, onUnmounted, watch } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 
 interface Props {
   buildings: BaseBuilding[];
@@ -47,6 +59,24 @@ const [emblaRef, emblaApi] = useEmblaCarousel(carouselOptions);
 
 const goToPrev = () => emblaApi.value?.scrollPrev();
 const goToNext = () => emblaApi.value?.scrollNext();
+
+const canPrev = ref(false);
+const canNext = ref(false);
+
+function updateArrows() {
+  canPrev.value = emblaApi.value?.canScrollPrev() ?? false;
+  canNext.value = emblaApi.value?.canScrollNext() ?? false;
+}
+
+watch(emblaApi, (api) => {
+  if (!api) return;
+  updateArrows();
+  api.on("select", updateArrows);
+  api.on("reInit", updateArrows);
+  api.on("resize", updateArrows);
+});
+
+watch([canPrev, canNext], () => nextTick(fitViewportWidth));
 
 function fitViewportWidth() {
   const viewport = emblaRef.value;
@@ -109,6 +139,10 @@ watch(
     svg {
       width: 1.25rem;
       height: 1.25rem;
+    }
+
+    &_hidden {
+      opacity: 0;
     }
   }
 }

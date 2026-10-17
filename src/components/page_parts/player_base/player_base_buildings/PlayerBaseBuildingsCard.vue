@@ -91,12 +91,13 @@ const countdownString = computed(() => {
     order: -1;
     flex-basis: 100%;
     height: 2.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    max-height: 2.5rem;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
     text-align: center;
-    hyphens: auto;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     font-size: 1rem;
     font-weight: 500;
     line-height: 1.2;
@@ -174,7 +175,7 @@ const countdownString = computed(() => {
     align-items: center;
     align-content: center;
     gap: 0.5rem;
-    width: 9.5rem;
+    width: 10rem;
     min-height: 9.25rem;
     padding: 0.5rem;
 
@@ -184,8 +185,8 @@ const countdownString = computed(() => {
       width: 100%;
       height: auto;
       min-height: 2.5rem;
-      justify-content: center;
       text-align: center;
+      font-size: 0.875rem;
     }
 
     &__tile {
