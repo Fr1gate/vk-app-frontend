@@ -1,7 +1,3 @@
-import bridge from "@vkontakte/vk-bridge";
-
-const isDevMode = import.meta.env.VITE_DEV_MODE === "true";
-
 interface LegacyFullscreenElement extends HTMLElement {
   webkitRequestFullscreen?: () => Promise<void> | void;
 }
@@ -10,29 +6,31 @@ export function isFullscreenActive(): boolean {
   return Boolean(document.fullscreenElement);
 }
 
+async function lockLandscape(): Promise<void> {
+  if (!screen.orientation?.lock) return;
+
+  try {
+    await screen.orientation.lock("landscape");
+  } catch {
+    // платформа запретила лок (desktop / sandbox без allow-orientation-lock)
+  }
+}
+
 export async function toggleFullscreen(): Promise<void> {
-  if (isFullscreenActive()) {
+  if (document.fullscreenElement) {
+    screen.orientation?.unlock?.();
     await document.exitFullscreen().catch(() => undefined);
     return;
   }
 
   const element = document.documentElement as LegacyFullscreenElement;
   const requestFullscreen = element.requestFullscreen ?? element.webkitRequestFullscreen;
-
-  if (requestFullscreen) {
-    try {
-      await requestFullscreen.call(element);
-      return;
-    } catch {
-      // iframe без allowfullscreen или платформа без поддержки — ниже нативный fallback
-    }
-  }
-
-  if (isDevMode) return;
+  if (!requestFullscreen) return;
 
   try {
-    await (bridge as unknown as { send: (method: string) => Promise<unknown> }).send("VKWebAppExpand");
+    await requestFullscreen.call(element);
+    await lockLandscape();
   } catch {
-    // метод недоступен на этой платформе
+    // iframe без allowfullscreen — фуллскрин недоступен
   }
 }

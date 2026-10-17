@@ -1,5 +1,5 @@
 <template>
-  <UIModal show-on-start>
+  <UIModal show-on-start prevent-close>
     <UISpinner />
   </UIModal>
 </template>

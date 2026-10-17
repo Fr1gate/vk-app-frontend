@@ -17,17 +17,22 @@ import { ref, useTemplateRef } from "vue";
 
 interface Props {
   showOnStart?: boolean;
+  preventClose?: boolean;
 }
 
-const { showOnStart = false } = defineProps<Props>();
+const { showOnStart = false, preventClose = false } = defineProps<Props>();
 
 const isOpened = ref(showOnStart);
 const modalRef = useTemplateRef("modal");
 
-onClickOutside(modalRef, close);
+onClickOutside(modalRef, handleClickOutside);
 
 function open() {
   isOpened.value = true;
+}
+function handleClickOutside() {
+  if (preventClose) return;
+  close();
 }
 function close() {
   isOpened.value = false;
