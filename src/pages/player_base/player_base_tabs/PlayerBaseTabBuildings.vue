@@ -15,22 +15,9 @@ const baseStore = usePlayerBaseStore();
 </script>
 
 <style lang="scss" scoped>
-.player-base {
-  height: 100vh;
-  width: 100vw;
+.player-base__body {
+  flex-grow: 1;
   display: flex;
-  flex-direction: column;
-  background-image: url("@/assets/bg/bases/bg-earth.webp");
-  background-size: cover;
-
-  &__header {
-    height: 30px;
-  }
-
-  &__body {
-    flex-grow: 1;
-    display: flex;
-    align-items: flex-end;
-  }
+  align-items: flex-end;
 }
 </style>

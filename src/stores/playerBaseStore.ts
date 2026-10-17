@@ -29,7 +29,6 @@ export const usePlayerBaseStore = defineStore("playerBase", () => {
   const bases = shallowRef<Record<string, PlayerBase>>({});
   const activeSiteId = ref<SiteId>(HOME_SITE_ID);
   const isLoading = ref(false);
-  const error = ref<string | null>(null);
   const inflight = new Map<string, Promise<PlayerBase | null>>();
 
   const base = computed(() => bases.value[activeSiteId.value] ?? null);
@@ -40,17 +39,13 @@ export const usePlayerBaseStore = defineStore("playerBase", () => {
     if (pending) return pending;
 
     isLoading.value = true;
-    error.value = null;
     const request = api.bases
       .basesDetail(siteId)
       .then(({ data }) => {
         bases.value = { ...bases.value, [siteId]: data };
         return data;
       })
-      .catch(() => {
-        error.value = "Не удалось загрузить базу";
-        return null;
-      })
+      .catch(() => null)
       .finally(() => {
         isLoading.value = false;
         inflight.delete(siteId);
@@ -113,29 +108,10 @@ export const usePlayerBaseStore = defineStore("playerBase", () => {
     return groups;
   });
 
-  /** Список ресурсов фазы. По умолчанию — только ненулевые (для UI-панелей). */
-  function getResourcesByPhase(kind: ResourceKind, includeEmpty = false): ResourceItem[] {
-    const list = resourcesByPhase.value[kind];
-    return includeEmpty ? list : list.filter((item) => item.amount > 0);
-  }
-
-  /** Оптимистичное списание/начисление — после действий, до ответа refresh. */
-  function applyResourceDelta(delta: Record<string, number>, siteId: string = activeSiteId.value) {
-    const current = bases.value[siteId];
-    if (!current) return;
-    const next: Record<string, number> = { ...current.resources };
-    for (const [resourceId, amount] of Object.entries(delta)) {
-      next[resourceId] = (next[resourceId] ?? 0) + amount;
-    }
-    bases.value = {
-      ...bases.value,
-      [siteId]: { ...current, resources: next as PlayerBase["resources"] },
-    };
-  }
-
   // --- Здания ---
   const buildings = computed(() => base.value?.buildings ?? []);
   const availableBuildings = computed(() => base.value?.buildings_available ?? []);
+  const buildingsInConstruction = computed(() => buildings.value.filter((b) => b.will_upgrade_at));
 
   // --- Авто-обновление по производственным циклам ---
   let cycleTimer: ReturnType<typeof setTimeout> | undefined;
@@ -148,18 +124,23 @@ export const usePlayerBaseStore = defineStore("playerBase", () => {
     cycleTimer = setTimeout(() => void refresh(current.site_id as SiteId), Math.min(delay, 2_147_483_647));
   });
 
+  let upgradeTimer: ReturnType<typeof setTimeout> | undefined;
+  watch(buildings, (list) => {
+    clearTimeout(upgradeTimer);
+    const times = list
+      .filter((b) => b.will_upgrade_at)
+      .map((b) => new Date(b.will_upgrade_at!).getTime())
+      .filter((time) => time > Date.now());
+    if (!times.length) return;
+    const delay = Math.min(...times) - Date.now() + 1_000;
+    upgradeTimer = setTimeout(() => void refresh(), Math.min(delay, 2_147_483_647));
+  });
+
   return {
-    bases,
-    activeSiteId,
     base,
-    isLoading,
     isInitialLoading,
-    error,
     loadBase,
     refresh,
-    resources,
-    fuel,
-    resourcesById,
     money,
     fuelTotal,
     powerBalance,
@@ -167,9 +148,8 @@ export const usePlayerBaseStore = defineStore("playerBase", () => {
     getResourceAmount,
     getResourceKind,
     resourcesByPhase,
-    getResourcesByPhase,
-    applyResourceDelta,
     buildings,
     availableBuildings,
+    buildingsInConstruction,
   };
 });

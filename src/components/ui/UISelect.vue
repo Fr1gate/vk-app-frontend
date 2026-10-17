@@ -6,12 +6,11 @@
         <component
           :is="selectedOption.icon"
           v-else-if="selectedOption?.icon"
-          :size="16"
           :color="selectedOption.iconColor ?? 'var(--theme-accent)'"
           :fill="selectedOption.iconColor ?? 'none'"
         />
         <div class="select__value">{{ selectedOption?.label }}</div>
-        <ChevronDown :size="14" color="var(--theme-accent)" />
+        <ChevronDown color="var(--theme-accent)" />
       </div>
     </template>
     <template #content="{ close }">
@@ -27,12 +26,11 @@
           <component
             :is="option.icon"
             v-else-if="option.icon"
-            :size="16"
             :color="option.iconColor ?? 'var(--theme-accent)'"
             :fill="option.iconColor ?? 'none'"
           />
           <div class="select__item-label">{{ option.label }}</div>
-          <Check v-if="option.id === model" :size="14" color="var(--theme-accent)" />
+          <Check v-if="option.id === model" color="var(--theme-accent)" />
         </div>
       </div>
     </template>
@@ -65,43 +63,49 @@ function select(id: TId, close: () => void) {
   @include mixins.gradient-border(var(--theme-fill), var(--theme-stroke));
   display: flex;
   align-items: center;
-  font-size: 14px;
+  font-size: var(--font-md);
   font-weight: 500;
-  padding: 4px 12px;
-  border-radius: 8px;
-  gap: 8px;
+  padding: var(--space-2) var(--space-5);
+  border-radius: 0.5rem;
+  gap: var(--space-4);
 
   @include mixins.button-states;
 
+  svg {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+
   &__value {
-    min-width: 60px;
+    min-width: 3.75rem;
   }
 
   &__image {
-    width: 16px;
-    height: 16px;
+    width: 1rem;
+    height: 1rem;
     flex-shrink: 0;
     display: block;
   }
 
   &__content {
     background-color: var(--bg-overlay);
-    padding: 6px;
-    border-radius: 12px;
+    padding: var(--space-3);
+    border-radius: 0.75rem;
     border: 1px solid var(--theme-stroke);
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    min-width: 180px;
+    gap: var(--space-2);
+    min-width: 11.25rem;
   }
 
   &__item {
     display: flex;
     align-items: center;
-    font-size: 14px;
-    gap: 8px;
-    border-radius: 8px;
-    padding: 6px 10px;
+    font-size: var(--font-md);
+    gap: var(--space-4);
+    border-radius: 0.5rem;
+    padding: var(--space-3) 0.625rem;
     cursor: pointer;
 
     &_active,

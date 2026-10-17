@@ -2,7 +2,7 @@
   <div class="buildings">
     <div class="buildings__carousel">
       <button v-show="showCarousel" class="buildings__arrow-button" @click="goToPrev">
-        <ChevronLeft :size="18" color="var(--theme-accent)" />
+        <ChevronLeft color="var(--theme-accent)" />
       </button>
       <div class="embla__viewport" ref="emblaRef">
         <div class="embla__container">
@@ -11,11 +11,11 @@
           </div>
         </div>
       </div>
+      <PlayerBaseBuildNew :available-buildings="availableBuildings" />
       <button v-show="showCarousel" class="buildings__arrow-button" @click="goToNext">
-        <ChevronRight :size="18" color="var(--theme-accent)" />
+        <ChevronRight color="var(--theme-accent)" />
       </button>
     </div>
-    <PlayerBaseBuildNew :available-buildings="availableBuildings" />
   </div>
 </template>
 
@@ -26,7 +26,7 @@ import type { BuildingAvailable, BaseBuilding } from "@/api/generated/types";
 import PlayerBaseBuildNew from "./PlayerBaseBuildingsNew.vue";
 import PlayerBaseBuildingsCard from "./PlayerBaseBuildingsCard.vue";
 import { ChevronLeft, ChevronRight } from "@lucide/vue";
-import { computed } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, watch } from "vue";
 
 interface Props {
   buildings: BaseBuilding[];
@@ -35,10 +35,9 @@ interface Props {
 
 const { buildings, availableBuildings } = defineProps<Props>();
 
-const showCarousel = computed(() => buildings.length > 5);
+const showCarousel = computed(() => buildings.length > 3);
 
 const carouselOptions = computed<EmblaOptionsType>(() => ({
-  dragFree: true,
   slidesToScroll: 1,
   align: "start",
   watchDrag: showCarousel.value,
@@ -48,6 +47,33 @@ const [emblaRef, emblaApi] = useEmblaCarousel(carouselOptions);
 
 const goToPrev = () => emblaApi.value?.scrollPrev();
 const goToNext = () => emblaApi.value?.scrollNext();
+
+function fitViewportWidth() {
+  const viewport = emblaRef.value;
+  const slide = viewport?.querySelector<HTMLElement>(".embla__slide");
+  if (!viewport || !slide) return;
+
+  viewport.style.width = "";
+  const available = viewport.clientWidth;
+  const gap = parseFloat(getComputedStyle(slide).marginRight) || 0;
+  const pitch = slide.offsetWidth + gap;
+  if (pitch <= 0) return;
+
+  const visible = Math.max(1, Math.min(buildings.length, Math.floor((available + gap) / pitch)));
+  viewport.style.width = `${visible * pitch - gap}px`;
+}
+
+onMounted(() => {
+  fitViewportWidth();
+  window.addEventListener("resize", fitViewportWidth);
+});
+
+onUnmounted(() => window.removeEventListener("resize", fitViewportWidth));
+
+watch(
+  () => buildings.length,
+  () => nextTick(fitViewportWidth),
+);
 </script>
 
 <style lang="scss" scoped>
@@ -56,22 +82,21 @@ const goToNext = () => emblaApi.value?.scrollNext();
   justify-content: center;
   width: 100vw;
   overflow: hidden;
-  padding-inline: 4px;
-  gap: 8px;
-  padding-bottom: 4px;
+  padding-inline: 0.25rem;
+  padding-bottom: 0.25rem;
 
   &__carousel {
     display: flex;
-
     min-width: 0;
     align-items: center;
-    gap: 8px;
+    gap: 0.5rem;
   }
 
   &__arrow-button {
     box-sizing: border-box;
-    width: 40px;
-    height: 40px;
+    flex-shrink: 0;
+    width: 2.75rem;
+    height: 2.75rem;
     background: var(--theme-nav-fill);
     border: 1px solid var(--theme-stroke);
     border-radius: 100%;
@@ -80,9 +105,12 @@ const goToNext = () => emblaApi.value?.scrollNext();
     justify-content: center;
     cursor: pointer;
     user-select: none;
-  }
 
-  --slide-size: 100%;
+    svg {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+  }
 }
 
 .embla__viewport {
@@ -97,13 +125,18 @@ const goToNext = () => emblaApi.value?.scrollNext();
 .embla__slide {
   display: flex;
   min-width: 0;
-  margin-right: 12px;
-  flex-basis: 140px;
-  flex-grow: 0;
-  flex-shrink: 0;
+  flex: 0 0 12.25rem;
+  margin-right: 0.5rem;
 
   &:last-child {
     margin-right: 0;
+  }
+}
+
+@media (min-height: 450px) {
+  .embla__slide {
+    flex: 0 0 9.5rem;
+    margin-right: 1rem;
   }
 }
 </style>

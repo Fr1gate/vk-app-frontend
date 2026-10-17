@@ -2,7 +2,7 @@
   <UIModal ref="modalRef">
     <template #button>
       <div v-bind="$attrs" class="new-building">
-        <div class="new-building__icon"><Plus color="var(--theme-accent)" :size="24" /></div>
+        <div class="new-building__icon"><Plus color="var(--theme-accent)" /></div>
         <div class="new-building__text">Построить</div>
       </div>
     </template>
@@ -10,7 +10,7 @@
       <div class="new-building-modal">
         <div class="new-building-modal__header">
           <div class="new-building-modal__name">Постройка здания</div>
-          <div class="new-building-modal__close" @click="handleClose"><X :size="18" /></div>
+          <div class="new-building-modal__close" @click="handleClose"><X /></div>
         </div>
         <div class="new-building-modal__body">
           <div class="new-building-modal__list">
@@ -22,7 +22,7 @@
               @click="handleSelectBuilding(building)"
             >
               <span class="new-building-modal__item-icon"
-                ><Component :is="getBuildingIconComponent(building.kind)" color="var(--theme-accent-hi)" :size="16"
+                ><Component :is="getBuildingIconComponent(building.kind)" color="var(--theme-accent-hi)"
               /></span>
               <span class="new-building-modal__item-name">{{ building.name }}</span>
             </div>
@@ -36,18 +36,24 @@
             <div class="new-building-modal__details-costs">
               <div v-for="cost in costEntries" :key="cost.resourceId" class="new-building-modal__details-cost">
                 <div class="new-building-modal__details-cost-left">
-                  <Component :is="cost.icon" :size="16" :color="cost.color" class="new-building-modal__details-cost-icon" /><span
+                  <Component :is="cost.icon" :color="cost.color" class="new-building-modal__details-cost-icon" /><span
                     class="new-building-modal__details-cost-name"
                     >{{ cost.name }}</span
                   >
                 </div>
                 <div class="new-building-modal__details-cost-right">
-                  <span class="new-building-modal__details-cost-value">{{ cost.formatted }}</span>
+                  <span
+                    class="new-building-modal__details-cost-value"
+                    :class="{
+                      'new-building-modal__details-cost-value_not-enough': !cost.isEnough,
+                    }"
+                    >{{ cost.formatted }}</span
+                  >
                 </div>
               </div>
             </div>
             <div class="new-building-modal__details-controls">
-              <UIButton @click="handleBuild">Построить</UIButton>
+              <UIButton v-show="constructionAvailable" @click="handleBuild">Построить</UIButton>
             </div>
           </div>
         </div>
@@ -130,35 +136,50 @@ function getResourceData(resourceId: string) {
 }
 
 const costEntries = computed(() =>
-  Object.entries(selectedBuilding.value?.next_level_cost ?? {}).map(([resourceId, amount]) => ({
+  Object.entries(selectedBuilding.value!.next_level_cost).map(([resourceId, amount]) => ({
     resourceId,
     amount,
     formatted: formatAmount(amount),
+    isEnough: baseStore.getResourceAmount(resourceId) >= amount,
     ...getResourceData(resourceId),
   })),
 );
+
+const constructionAvailable = computed(() => {
+  const building = selectedBuilding.value;
+  if (!building) return false;
+  if (building.level >= building.max_level) return false;
+  if (baseStore.buildingsInConstruction.some((item) => item.building_id === building.building_id)) return false;
+  return costEntries.value.every((cost) => cost.isEnough);
+});
 </script>
 
 <style lang="scss" scoped>
 @use "@/styles/mixins";
 
-@media (max-width: 999px) {
-  .new-building-modal {
-    max-width: calc(100vw - 100px);
+$modal-width: 66rem;
+$modal-padding: 1.25rem;
+$modal-edge-gap: 1rem;
+$modal-max-width: calc(100vw - #{$modal-padding * 2 + $modal-edge-gap * 2});
+
+@media (max-height: 449px) {
+  .new-building-modal__details-image {
+    display: none;
   }
 }
 
 .new-building {
-  width: 140px;
-  height: 112px;
-  border-radius: 18px;
-  background-color: var(--theme-fill);
-  border: 1px solid var(--theme-stroke);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 100%;
+  background: radial-gradient(var(--theme-grad-a), var(--theme-grad-b));
+  border: 1px solid var(--theme-stroke);
   user-select: none;
   cursor: pointer;
 
@@ -166,54 +187,93 @@ const costEntries = computed(() =>
     display: flex;
     align-items: center;
     justify-content: center;
-    box-sizing: border-box;
-    height: 50px;
-    width: 50px;
-    background: radial-gradient(var(--theme-grad-a), var(--theme-grad-b));
-    border: 1px solid var(--theme-stroke);
-    border-radius: 100%;
   }
 
   &__text {
-    font-size: 11px;
-    font-weight: 500;
-    line-height: 120%;
-    height: 28px;
-    display: flex;
-    align-items: center;
+    display: none;
+  }
+
+  svg {
+    width: 1.5rem;
+    height: 1.5rem;
   }
 
   &:hover {
-    box-shadow: 0 0 10px var(--theme-accent-glow);
-    @include mixins.gradient-border(var(--theme-fill), var(--gradient-accent));
+    box-shadow: 0 0 0.625rem var(--theme-accent-glow);
   }
-  &:active {
-    @include mixins.gradient-border(var(--theme-active), var(--gradient-accent));
+}
+
+@media (min-height: 450px) {
+  .new-building {
+    gap: 0.5rem;
+    width: 9.5rem;
+    height: 9.25rem;
+    padding: 0.5rem;
+    border-radius: 1.125rem;
+    background: var(--theme-fill);
+
+    &__icon {
+      box-sizing: border-box;
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: 100%;
+      background: radial-gradient(var(--theme-grad-a), var(--theme-grad-b));
+      border: 1px solid var(--theme-stroke);
+    }
+
+    &__text {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 2.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      line-height: 1.2;
+    }
+
+    svg {
+      width: 1.75rem;
+      height: 1.75rem;
+    }
+
+    &:hover {
+      box-shadow: 0 0 0.625rem var(--theme-accent-glow);
+      @include mixins.gradient-border(var(--theme-fill), var(--gradient-accent));
+    }
+
+    &:active {
+      @include mixins.gradient-border(var(--theme-active), var(--gradient-accent));
+    }
   }
 }
 
 .new-building-modal {
   display: flex;
   flex-direction: column;
+  width: $modal-width;
+  max-width: $modal-max-width;
 
   &__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 10px;
+    padding-bottom: 0.625rem;
     border-bottom: 1px solid var(--silver-800);
-    margin-bottom: 10px;
+    margin-bottom: 0.625rem;
   }
 
   &__name {
-    font-size: 18px;
+    font-size: 1.25rem;
     font-weight: 700;
   }
 
   &__close {
+    display: flex;
     cursor: pointer;
 
     svg {
+      width: 1.125rem;
+      height: 1.125rem;
       stroke: var(--font-muted);
     }
 
@@ -226,28 +286,29 @@ const costEntries = computed(() =>
 
   &__body {
     display: flex;
-    gap: 16px;
-    max-height: calc(100vh - 120px);
+    gap: 1rem;
+    max-height: calc(100vh - 7.5rem);
   }
 
   &__list {
-    width: 292px;
+    width: 18.25rem;
+    flex-shrink: 0;
     overflow: auto;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding-right: 4px;
+    gap: 0.5rem;
+    padding-right: 0.25rem;
   }
 
   &__item {
     background: var(--theme-active);
     border: 1px solid var(--theme-stroke);
-    padding: 14px 10px;
-    border-radius: 8px;
+    padding: 0.875rem 0.625rem;
+    border-radius: 0.5rem;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 0.5rem;
 
     @include mixins.button-states;
 
@@ -258,39 +319,45 @@ const costEntries = computed(() =>
 
   &__item-icon {
     display: flex;
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+    }
   }
 
   &__details {
     display: flex;
     flex-direction: column;
     overflow: auto;
-    width: 500px;
+    flex: 1 1 0;
+    min-width: 0;
   }
 
   &__details-image {
     border: 1px solid var(--theme-stroke);
-    border-radius: 6px;
-    width: 500px;
-    height: 100px;
+    border-radius: var(--radius-md);
+    width: 100%;
+    height: 6.25rem;
     object-fit: cover;
-    margin-bottom: 8px;
+    margin-bottom: 0.5rem;
   }
 
   &__details-header {
-    font-size: 16px;
+    font-size: 1rem;
     color: var(--font-primary);
     font-weight: 700;
-    margin-bottom: 8px;
+    margin-bottom: 0.5rem;
   }
 
   &__details-description {
     color: var(--font-secondary);
     flex-shrink: 1;
     min-height: 1rem;
-    max-height: 44px;
+    max-height: 2.75rem;
     overflow: auto;
-    margin-bottom: 8px;
-    font-size: 11px;
+    margin-bottom: 0.5rem;
+    font-size: var(--font-md);
     line-height: 130%;
   }
 
@@ -299,32 +366,44 @@ const costEntries = computed(() =>
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-auto-rows: max-content;
-    column-gap: 24px;
-    row-gap: 8px;
-    margin-bottom: 8px;
+    column-gap: 1.5rem;
+    row-gap: 0.5rem;
+    margin-bottom: 0.5rem;
   }
 
   &__details-cost {
     display: flex;
-    gap: 4px;
+    gap: 0.25rem;
     align-items: baseline;
     justify-content: space-between;
+    font-size: var(--font-md);
   }
 
   &__details-cost-left {
     display: flex;
-    gap: 8px;
+    gap: 0.5rem;
     align-items: baseline;
   }
 
   &__details-cost-icon {
     align-self: center;
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+    }
   }
 
   &__details-cost-right {
     display: flex;
-    gap: 8px;
+    gap: 0.5rem;
     align-items: baseline;
+  }
+
+  &__details-cost-value {
+    &_not-enough {
+      color: var(--status-error);
+    }
   }
 
   &__details-controls {

@@ -9,19 +9,19 @@
           <div class="player-base-header__center">
             <div class="player-base-header__resource">
               <div class="player-base-header__resource-icon">
-                <RussianRuble :size="iconSize" color="var(--theme-accent)" />
+                <RussianRuble color="var(--theme-accent)" />
               </div>
               <div class="player-base-header__resource-value">{{ moneyStr }}</div>
             </div>
             <div class="player-base-header__resource">
               <div class="player-base-header__resource-icon">
-                <Droplets :size="iconSize" color="var(--theme-accent)" />
+                <Droplets color="var(--theme-accent)" />
               </div>
               <div class="player-base-header__resource-value">{{ fuelStr }} т</div>
             </div>
             <div class="player-base-header__resource">
               <div class="player-base-header__resource-icon">
-                <Zap :size="iconSize" color="var(--theme-accent)" />
+                <Zap color="var(--theme-accent)" />
               </div>
               <div class="player-base-header__resource-value">{{ energyStr }} МВт</div>
             </div>
@@ -71,8 +71,6 @@ interface Props {
   energy: number;
 }
 
-const iconSize = 16;
-
 const props = defineProps<Props>();
 
 const moneyStr = computed(() => {
@@ -101,10 +99,10 @@ const energyStr = computed(() => {
   grid-template-columns: 1fr auto 1fr;
   background-color: var(--theme-fill);
   box-sizing: content-box;
-  height: 48px;
+  height: 3rem;
   align-items: center;
   justify-content: space-between;
-  padding-inline: 24px;
+  padding-inline: 1.5rem;
   border-bottom: 1px solid var(--theme-accent);
 
   &__wrapper {
@@ -114,7 +112,7 @@ const energyStr = computed(() => {
   &__center {
     display: flex;
     align-items: center;
-    height: 40px;
+    height: 2.5rem;
   }
 
   &__left,
@@ -129,36 +127,41 @@ const energyStr = computed(() => {
   &__resource {
     display: flex;
     align-items: center;
-    padding-inline: 20px;
-    height: 16px;
-    font-size: 14px;
+    padding-inline: 1.25rem;
+    height: 1rem;
+    font-size: var(--font-md);
 
     &:not(:last-child) {
       border-right: 1px solid var(--theme-stroke);
     }
 
     &-icon {
-      margin-right: 4px;
+      margin-right: 0.25rem;
       display: flex;
+
+      svg {
+        width: 1rem;
+        height: 1rem;
+      }
     }
   }
 
   &__sub-menu {
     background: linear-gradient(#0a0c12d9, #0a0c1200);
-    height: 40px;
+    height: 2.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 36px;
+    gap: 2.25rem;
   }
 
   &__sub-menu-item {
-    font-size: 14px;
+    font-size: var(--font-md);
     color: var(--font-primary);
     cursor: pointer;
     user-select: none;
-    padding: 4px 8px;
-    border-bottom: 2px solid transparent;
+    padding: 0.25rem 0.5rem;
+    border-bottom: var(--stroke-thick) solid transparent;
     text-decoration: none;
 
     &.router-link-active {
@@ -167,7 +170,7 @@ const energyStr = computed(() => {
 
     &:hover {
       color: var(--theme-accent);
-      border-bottom: 2px solid var(--theme-accent);
+      border-bottom: var(--stroke-thick) solid var(--theme-accent);
     }
   }
 }

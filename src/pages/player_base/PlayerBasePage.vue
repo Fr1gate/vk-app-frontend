@@ -56,7 +56,7 @@ watch(
   }
 
   &__header {
-    height: 30px;
+    height: 1.875rem;
   }
 
   &__body {

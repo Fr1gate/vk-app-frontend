@@ -25,6 +25,6 @@
 
   &:active {
     @include gradient-border(var(--theme-active), var(--gradient-accent));
-    box-shadow: 0 0 10px var(--theme-accent-glow);
+    box-shadow: 0 0 0.625rem var(--theme-accent-glow);
   }
 }

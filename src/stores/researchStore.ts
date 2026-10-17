@@ -8,7 +8,6 @@ export const useResearchStore = defineStore("researchStore", () => {
   const researchData = ref<TechnologiesResponse | null>(null);
   const isLoading = ref<boolean>(false);
   const loadedInitially = ref<boolean>(false);
-  const techDictionary = ref<Record<string, Technology>>({});
 
   function loadData() {
     isLoading.value = true;

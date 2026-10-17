@@ -25,16 +25,16 @@ const fillStyle = computed(() => {
 <style lang="scss" scoped>
 .progress-bar {
   position: relative;
-  height: 4px;
-  border-radius: 4px;
+  height: 0.25rem;
+  border-radius: 0.25rem;
   background: #ffffff24;
 
   &__fill {
     position: absolute;
     left: 0;
     top: 0;
-    height: 4px;
-    border-radius: 4px;
+    height: 0.25rem;
+    border-radius: 0.25rem;
   }
 }
 </style>

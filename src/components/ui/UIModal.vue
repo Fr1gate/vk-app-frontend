@@ -57,7 +57,7 @@ defineExpose({
 }
 
 .modal {
-  padding: 20px;
+  padding: 1.25rem;
   background: var(--gradient-background);
   border: 1px solid var(--theme-stroke);
   border-radius: var(--radius-lg);
