@@ -5,21 +5,23 @@
         <div class="tech-details__head">
           <div class="tech-details__name">{{ selectedTech.name }}</div>
           <div class="tech-details__info-row">
-            <div class="tech-details__code">{{ selectedTech.code }}</div>
+            <PlayerBaseResearchTechCode :code="selectedTech.code" />
             <div class="tech-details__branch">{{ researchStore.getBranchName(selectedTech.branch_id) }}</div>
-            <div class="tech-details__time-cost">{{ selectedTech.cost.hours }} ч</div>
           </div>
         </div>
-        <div class="tech-details__cost">
+        <div v-if="selectedTech.status !== 'researched'" class="tech-details__cost">
           <div class="tech-details__cost-label">Стоимость</div>
           <div class="tech-details__cost-row">
-            <div class="tech-details__cost-money">
-              <RussianRuble :size="16" />
-              <span
-                class="tech-details__cost-value"
-                :class="{ 'tech-details__cost-value_not-enough': baseStore.money < selectedTech.cost.money }"
-                >{{ formatAmount(selectedTech.cost.money) }}</span
-              >
+            <div class="tech-details__cost-name">Длительность</div>
+            <div class="tech-details__cost-value">{{ selectedTech.cost.hours }} ч</div>
+          </div>
+          <div class="tech-details__cost-row">
+            <div class="tech-details__cost-name">Валюта, <RussianRuble /></div>
+            <div
+              class="tech-details__cost-value"
+              :class="{ 'tech-details__cost-value_not-enough': baseStore.money < selectedTech.cost.money }"
+            >
+              {{ formatAmount(selectedTech.cost.money) }}
             </div>
           </div>
           <template v-if="selectedTech.cost.materials">
@@ -56,6 +58,7 @@
 <script lang="ts" setup>
 import type { Technology } from "@/api/generated/types";
 import UIButton from "@/components/ui/UIButton.vue";
+import PlayerBaseResearchTechCode from "./PlayerBaseResearchTechCode.vue";
 import { researchService } from "@/services/researchService";
 import { useGameDictionaryStore } from "@/stores/gameDictionaryStore";
 import { usePlayerBaseStore } from "@/stores/playerBaseStore";
@@ -125,6 +128,8 @@ function getMaterialName(key: string) {
     flex-grow: 1;
     min-height: 0;
     overflow-y: auto;
+    padding-right: 0.5rem;
+    margin-right: -0.5rem;
   }
 
   &__head {
@@ -140,27 +145,13 @@ function getMaterialName(key: string) {
     line-height: 1.2;
     hyphens: auto;
     overflow-wrap: anywhere;
+    margin-bottom: 0.5rem;
   }
 
   &__info-row {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-  }
-
-  &__code {
-    background-color: var(--theme-accent-deep);
-    height: 1.5rem;
-    width: 1.5rem;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0.375rem;
-    color: var(--theme-accent-hi);
-    font-size: 0.75rem;
-    font-weight: 700;
-    line-height: 1;
+    gap: 0.375rem;
   }
 
   &__branch {
@@ -169,14 +160,8 @@ function getMaterialName(key: string) {
     font-weight: 500;
   }
 
-  &__time-cost {
-    color: var(--font-primary);
-    font-size: 0.875rem;
-    font-weight: 600;
-  }
-
   &__description {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     font-weight: 500;
     line-height: 1.3;
     color: var(--font-secondary);
@@ -193,6 +178,8 @@ function getMaterialName(key: string) {
     text-transform: uppercase;
     font-size: 0.875rem;
     font-weight: 600;
+    margin-top: 0.5rem;
+    margin-bottom: 0.25rem;
   }
 
   &__cost-row {
@@ -201,12 +188,6 @@ function getMaterialName(key: string) {
     gap: 0.5rem;
     font-size: 0.875rem;
     font-weight: 500;
-  }
-
-  &__cost-money {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
 
     svg {
       width: 1rem;

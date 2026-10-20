@@ -70,7 +70,7 @@ const TABS = [
   },
 ];
 
-const selectedTab = ref("tree");
+const selectedTab = ref("list");
 
 // SELECTED TECH
 const selectedTech = ref<string | null>(null);
@@ -86,7 +86,7 @@ $sub-menu-height: 2.5rem;
 
   background: #0a0c12e6;
   margin-top: calc(-1 * $sub-menu-height);
-  padding-top: calc($sub-menu-height + 1rem);
+  padding-top: calc($sub-menu-height + 0.5rem);
   z-index: 1;
   min-height: 0;
   overflow: hidden;
@@ -102,7 +102,7 @@ $sub-menu-height: 2.5rem;
 
   &__switcher {
     display: flex;
-    margin-bottom: 8px;
+    margin-bottom: 0.5rem;
   }
 
   &__techs {

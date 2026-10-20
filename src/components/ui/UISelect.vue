@@ -7,7 +7,7 @@
           :is="selectedOption.icon"
           v-else-if="selectedOption?.icon"
           :color="selectedOption.iconColor ?? 'var(--theme-accent)'"
-          :fill="selectedOption.iconColor ?? 'none'"
+          :fill="selectedOption.iconFill ?? 'none'"
         />
         <div class="select__value">{{ selectedOption?.label }}</div>
         <ChevronDown color="var(--theme-accent)" />
@@ -27,7 +27,7 @@
             :is="option.icon"
             v-else-if="option.icon"
             :color="option.iconColor ?? 'var(--theme-accent)'"
-            :fill="option.iconColor ?? 'none'"
+            :fill="option.iconFill ?? 'none'"
           />
           <div class="select__item-label">{{ option.label }}</div>
           <Check v-if="option.id === model" color="var(--theme-accent)" />
@@ -43,7 +43,7 @@ import { Check, ChevronDown } from "@lucide/vue";
 import { computed, type Component } from "vue";
 
 const { options } = defineProps<{
-  options: { id: TId; label: string; icon?: Component; iconColor?: string; image?: string }[];
+  options: { id: TId; label: string; icon?: Component; iconColor?: string; iconFill?: string; image?: string }[];
 }>();
 
 const model = defineModel<TId>();

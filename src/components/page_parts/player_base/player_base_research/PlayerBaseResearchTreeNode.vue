@@ -8,6 +8,7 @@
       'tech-node_highlighted': !isOutside,
       'tech-node_prev': isPrevTech,
       'tech-node_next': isNextTech,
+      'tech-node_researched': tech.status === 'researched',
       'tech-node_researching': isResearching,
     }"
     @click="handleClick"
@@ -70,6 +71,10 @@ function handleClick() {
   border-radius: 6px;
   cursor: pointer;
   user-select: none;
+
+  &_researched {
+    border-color: var(--status-success);
+  }
 
   &_highlighted,
   &_selected {

@@ -4,7 +4,7 @@
       <div class="techs-list__group-label">В работе</div>
       <div class="techs-list__current-tech" @click="selectedTech = currentResearch.id">
         <div class="techs-list__current-tech-head">
-          <div class="techs-list__current-tech-code">{{ currentResearch.code }}</div>
+          <PlayerBaseResearchTechCode :code="currentResearch.code" />
           <div class="techs-list__current-tech-name">{{ currentResearch.name }}</div>
           <div class="techs-list__current-tech-branch">{{ researchStore.getBranchName(currentResearch.branch_id) }}</div>
         </div>
@@ -19,7 +19,7 @@
       <div class="techs-list__list">
         <div v-for="tech in unlockedTechs" :key="tech.id" class="techs-list__tech" @click="selectedTech = tech.id">
           <div class="techs-list__tech-left">
-            <div class="techs-list__tech-code">{{ tech.code }}</div>
+            <PlayerBaseResearchTechCode :code="tech.code" />
             <div class="techs-list__tech-name">{{ tech.name }}</div>
             <div class="techs-list__tech-branch">{{ researchStore.getBranchName(tech.branch_id) }}</div>
           </div>
@@ -36,6 +36,7 @@
 <script lang="ts" setup>
 import type { Technology } from "@/api/generated/types";
 import UIProgressBar from "@/components/ui/UIProgressBar.vue";
+import PlayerBaseResearchTechCode from "./PlayerBaseResearchTechCode.vue";
 import { useResearchStore } from "@/stores/researchStore";
 import { formatAmount } from "@/utils/formatAmount";
 import { computed, onUnmounted, ref, watch } from "vue";
@@ -97,22 +98,22 @@ const remainingString = computed(() => {
   flex-direction: column;
   overflow: auto;
   min-height: 0;
-  padding-right: 6px;
+  padding-right: 0.375rem;
 
   &__group {
     display: flex;
     flex-direction: column;
 
     &:not(:last-child) {
-      margin-bottom: 12px;
+      margin-bottom: 0.75rem;
     }
   }
 
   &__group-label {
     text-transform: uppercase;
-    font-size: 10px;
+    font-size: 0.875rem;
     font-weight: 600;
-    margin-bottom: 5px;
+    margin-bottom: 0.25rem;
     color: var(--font-muted);
   }
 
@@ -121,49 +122,36 @@ const remainingString = computed(() => {
     border: 1px solid var(--theme-stroke);
     background: var(--theme-surface);
     width: 100%;
-    padding: 10px;
-    border-radius: 10px;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
   }
 
   &__current-tech-head {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 6px;
-  }
-
-  &__current-tech-code {
-    background-color: var(--theme-accent-deep);
-    height: 24px;
-    width: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 6px;
-    color: var(--theme-accent-hi);
-    font-size: 10px;
-    font-weight: 700;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
   }
 
   &__current-tech-name {
     color: var(--font-primary);
     font-weight: 600;
-    font-size: 13px;
+    font-size: 1rem;
   }
 
   &__current-tech-branch {
     color: var(--font-secondary);
-    font-size: 11px;
+    font-size: 0.875rem;
     font-weight: 500;
   }
 
   &__current-tech-progress {
-    margin-bottom: 6px;
+    margin-bottom: 0.5rem;
   }
 
   &__current-tech-info {
     color: var(--font-secondary);
-    font-size: 10px;
+    font-size: 0.875rem;
     font-weight: 500;
   }
 
@@ -177,8 +165,8 @@ const remainingString = computed(() => {
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
-    padding-block: 5px;
-    padding-inline: 4px;
+    padding-block: 0.25rem;
+    padding-inline: 0.25rem;
 
     &:hover {
       background-color: var(--theme-accent-glow);
@@ -191,33 +179,20 @@ const remainingString = computed(() => {
 
   &__tech-left {
     display: flex;
-    gap: 6px;
-  }
-
-  &__tech-code {
-    background-color: var(--theme-accent-deep);
-    height: 24px;
-    width: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 6px;
-    color: var(--theme-accent-hi);
-    font-size: 10px;
-    font-weight: 700;
+    gap: 0.5rem;
   }
 
   &__tech-name {
     color: var(--font-primary);
     font-weight: 600;
-    font-size: 13px;
+    font-size: 1rem;
     display: flex;
     align-items: center;
   }
 
   &__tech-branch {
     color: var(--font-secondary);
-    font-size: 11px;
+    font-size: 0.875rem;
     font-weight: 500;
     display: flex;
     align-items: center;
@@ -226,7 +201,7 @@ const remainingString = computed(() => {
   &__tech-right {
     display: flex;
     color: var(--font-secondary);
-    font-size: 11px;
+    font-size: 0.875rem;
     font-weight: 500;
   }
 
@@ -236,7 +211,7 @@ const remainingString = computed(() => {
       &::after {
         content: "·";
         display: flex;
-        margin-inline: 2px;
+        margin-inline: 0.25rem;
       }
     }
   }

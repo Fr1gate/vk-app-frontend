@@ -36,17 +36,17 @@ function handleClick(id: string) {
 .tabs-selector {
   display: flex;
   flex-grow: 0;
-  gap: 2px;
+  gap: 0.125rem;
   background: var(--theme-fill);
-  padding: 3px;
+  padding: 0.125rem;
   border: 1px solid var(--theme-stroke);
-  border-radius: 8px;
+  border-radius: 0.5rem;
 
   &__option {
-    font-size: 12px;
+    font-size: 0.875rem;
     color: var(--font-primary);
-    padding: 4px 12px;
-    border-radius: 6px;
+    padding: 0.25rem 0.625rem;
+    border-radius: 0.375rem;
     cursor: pointer;
 
     &_selected {

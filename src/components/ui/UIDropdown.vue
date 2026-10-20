@@ -11,7 +11,7 @@
 
 <script lang="ts" setup>
 import { onClickOutside } from "@vueuse/core";
-import { onMounted, reactive, ref, useTemplateRef, watch } from "vue";
+import { onMounted, onUnmounted, reactive, ref, useTemplateRef, watch } from "vue";
 
 interface Props {
   align?: "left" | "center" | "right";
@@ -19,20 +19,32 @@ interface Props {
 
 const { align = "left" } = defineProps<Props>();
 
+const OFFSET = 2;
+const VIEWPORT_MARGIN = 8;
+
 const isShowed = ref(false);
 const refButton = useTemplateRef("button");
 const refBody = useTemplateRef("body");
 const contentStyles = reactive({
   top: "0px",
+  bottom: "unset",
   left: "0px",
   right: "unset",
   ["min-width"]: "0px",
+  ["max-height"]: "none",
   transform: "unset",
 });
 
 onMounted(() => {
   calculatePosition();
 });
+
+watch(isShowed, (opened) => {
+  if (opened) window.addEventListener("resize", calculatePosition);
+  else window.removeEventListener("resize", calculatePosition);
+});
+
+onUnmounted(() => window.removeEventListener("resize", calculatePosition));
 
 function toggle() {
   calculatePosition();
@@ -58,31 +70,40 @@ watch(() => align, resetStyles);
 function resetStyles() {
   Object.assign(contentStyles, {
     top: "0px",
+    bottom: "unset",
     left: "0px",
     right: "unset",
     ["min-width"]: "0px",
+    ["max-height"]: "none",
     transform: "unset",
   });
 }
 
 function calculatePosition() {
   const rect = refButton.value?.getBoundingClientRect();
+  if (!rect) return;
 
-  contentStyles.top = `${rect!.bottom + 2}px`;
-  contentStyles["min-width"] = `${rect!.width}px`;
+  const spaceBelow = window.innerHeight - rect.bottom - VIEWPORT_MARGIN;
+  const spaceAbove = rect.top - VIEWPORT_MARGIN;
+  const openAbove = spaceBelow < spaceAbove;
+
+  contentStyles.top = openAbove ? "unset" : `${rect.bottom + OFFSET}px`;
+  contentStyles.bottom = openAbove ? `${window.innerHeight - rect.top + OFFSET}px` : "unset";
+  contentStyles["max-height"] = `${Math.max(0, openAbove ? spaceAbove : spaceBelow)}px`;
+  contentStyles["min-width"] = `${rect.width}px`;
 
   switch (align) {
     case "left": {
-      contentStyles.left = `${rect!.left}px`;
+      contentStyles.left = `${rect.left}px`;
       break;
     }
     case "center": {
-      contentStyles.left = `${rect!.left + (rect!.right - rect!.left) / 2}px`;
+      contentStyles.left = `${rect.left + (rect.right - rect.left) / 2}px`;
       contentStyles.transform = `translateX(-50%)`;
       break;
     }
     case "right": {
-      contentStyles.right = `${rect!.right}px`;
+      contentStyles.right = `${rect.right}px`;
       break;
     }
   }
@@ -98,6 +119,10 @@ function calculatePosition() {
 
   &__content {
     position: absolute;
+
+    max-width: calc(100vw - 1rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
 
     z-index: 20;
   }

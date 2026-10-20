@@ -504,6 +504,167 @@ export class Api<
         format: "json",
         ...params,
       }),
+
+    /**
+     * @description Публичный флаг: включены ли тестовые экшены (env TEST_TOOLS).
+     *
+     * @tags test
+     * @name StatusList
+     * @summary Доступность инструментов тестирования
+     * @request GET:/test/status
+     */
+    statusList: (params: RequestParams = {}) =>
+      this.request<
+        {
+          enabled: boolean;
+        },
+        any
+      >({
+        path: `/test/status`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Без `resource_id` — добавляет `amount` каждому складскому ресурсу в пределах свободного места (вместимость корзин учитывается, излишки сгорают); без `amount` — заполнить свободное место корзин поровну. С `resource_id` — начисляет/списывает `amount` выбранному ресурсу: положительное ограничено свободным местом корзины, отрицательное — остатком (в минус не уходит).
+     *
+     * @tags test
+     * @name ResourcesCreate
+     * @summary Насыпать складские ресурсы
+     * @request POST:/test/resources
+     * @secure
+     */
+    resourcesCreate: (
+      data: {
+        /** Точка базы. По умолчанию site_earth. */
+        site_id?: string;
+        /** Конкретный складской ресурс (res_*). Обязателен вместе с amount. */
+        resource_id?: string;
+        /** Сколько добавить, кг. Отрицательное — вычесть (не ниже нуля). С resource_id обязателен */
+        amount?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** res_* → сколько начислено */
+          granted: Record<string, number>;
+        },
+        {
+          error?: string;
+          message?: string;
+        }
+      >({
+        path: `/test/resources`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Добавляет `amount` рублей на базу; отрицательное — списывает (ниже нуля не уходит). Деньги капом склада не ограничены.
+     *
+     * @tags test
+     * @name MoneyCreate
+     * @summary Начислить деньги
+     * @request POST:/test/money
+     * @secure
+     */
+    moneyCreate: (
+      data: {
+        site_id?: string;
+        /** Сколько рублей добавить (отрицательное — списать) */
+        amount: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          balance: number;
+        },
+        {
+          error?: string;
+          message?: string;
+        }
+      >({
+        path: `/test/money`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Переводит в «сейчас» апгрейды зданий, производство модулей, сборку и полёты кораблей этой базы, и исследования игрока — затем применяет завершения.
+     *
+     * @tags test
+     * @name FinishTimersCreate
+     * @summary Завершить все таймеры
+     * @request POST:/test/finish-timers
+     * @secure
+     */
+    finishTimersCreate: (
+      data: {
+        site_id?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          completed: boolean;
+        },
+        {
+          error?: string;
+          message?: string;
+        }
+      >({
+        path: `/test/finish-timers`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Удаляет базу на точке (здания, ресурсы, модули, корабли) и исследования игрока, затем создаёт базу заново со стартовым набором.
+     *
+     * @tags test
+     * @name ResetCreate
+     * @summary Сбросить прогресс
+     * @request POST:/test/reset
+     * @secure
+     */
+    resetCreate: (
+      data: {
+        site_id?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          base_id: number;
+        },
+        {
+          error?: string;
+          message?: string;
+        }
+      >({
+        path: `/test/reset`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
   };
   auth = {
     /**

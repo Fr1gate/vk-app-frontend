@@ -25,7 +25,7 @@ const { showOnStart = false, preventClose = false } = defineProps<Props>();
 const isOpened = ref(showOnStart);
 const modalRef = useTemplateRef("modal");
 
-onClickOutside(modalRef, handleClickOutside);
+onClickOutside(modalRef, handleClickOutside, { ignore: [".dropdown__content"] });
 
 function open() {
   isOpened.value = true;

@@ -1,7 +1,19 @@
 import bridge from "@vkontakte/vk-bridge";
 import { auth, type AuthReturnValue } from "@/services/auth/auth";
+import { usePlayerStore } from "@/stores/playerStore";
 
 const isDevMode = import.meta.env.VITE_DEV_MODE === "true";
+
+async function loadAvatar(): Promise<void> {
+  const playerStore = usePlayerStore();
+  try {
+    const info = await bridge.send("VKWebAppGetUserInfo");
+    playerStore.avatarUrl = info.photo_200 || info.photo_100 || null;
+    playerStore.vkName = `${info.first_name} ${info.last_name}`.trim() || null;
+  } catch {
+    playerStore.avatarUrl = null;
+  }
+}
 
 /**
  *
@@ -51,7 +63,10 @@ export async function vkInit(): Promise<AuthReturnValue> {
         case "VKWebAppGetLaunchParamsResult": {
           // auth
           const vkParams = event.detail.data;
-          auth(vkParams).then((authResult) => {
+          auth(vkParams).then(async (authResult) => {
+            if (authResult.loggedIn) {
+              await loadAvatar();
+            }
             resolve(authResult);
           });
 
