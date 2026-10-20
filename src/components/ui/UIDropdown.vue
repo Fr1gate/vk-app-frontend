@@ -1,5 +1,12 @@
 <template>
-  <div ref="button" class="dropdown__button" @click="handleClick" @pointerenter="handlePointerEnter" @pointerleave="handlePointerLeave">
+  <div
+    ref="button"
+    class="dropdown__button"
+    :class="{ dropdown__button_disabled: disabled }"
+    @click="handleClick"
+    @pointerenter="handlePointerEnter"
+    @pointerleave="handlePointerLeave"
+  >
     <slot name="button"></slot>
     <Teleport to="body">
       <div ref="body" v-show="isShowed" class="dropdown__content" :style="contentStyles">
@@ -18,9 +25,10 @@ interface Props {
   trigger?: "click" | "hover";
   // should body width match trigger's width
   matchTriggerWidth?: boolean;
+  disabled?: boolean;
 }
 
-const { align = "left", trigger = "click", matchTriggerWidth = true } = defineProps<Props>();
+const { align = "left", trigger = "click", matchTriggerWidth = true, disabled = false } = defineProps<Props>();
 
 const OFFSET = 2;
 const VIEWPORT_MARGIN = 8;
@@ -52,6 +60,7 @@ watch(isShowed, (opened) => {
 onUnmounted(() => window.removeEventListener("resize", calculatePosition));
 
 function open() {
+  if (disabled) return;
   calculatePosition();
   isShowed.value = true;
 }
@@ -66,6 +75,8 @@ function toggle() {
 }
 
 function handleClick() {
+  if (disabled) return;
+
   if (trigger === "hover") {
     isPinned.value = !isPinned.value;
     if (isPinned.value) open();
@@ -76,7 +87,7 @@ function handleClick() {
 }
 
 function handlePointerEnter(event: PointerEvent) {
-  if (trigger !== "hover" || event.pointerType !== "mouse") return;
+  if (disabled || trigger !== "hover" || event.pointerType !== "mouse") return;
   open();
 }
 
@@ -148,6 +159,10 @@ function calculatePosition() {
   &__button {
     user-select: none;
     cursor: pointer;
+
+    &_disabled {
+      cursor: default;
+    }
   }
 
   &__content {

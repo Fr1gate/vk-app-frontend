@@ -1,8 +1,8 @@
 <template>
   <div class="player-base-header__wrapper">
-    <div class="player-base-header">
+    <div class="player-base-header" :class="{ 'player-base-header_empty-menu': !testToolsEnabled }">
       <div class="player-base-header__left">
-        <UIDropdown align="left">
+        <UIDropdown align="left" :disabled="!testToolsEnabled">
           <template #button>
             <button class="player-base-header__avatar">
               <img v-if="playerStore.avatarUrl" class="player-base-header__avatar-image" :src="playerStore.avatarUrl" alt="" />
@@ -10,8 +10,8 @@
             </button>
           </template>
           <template #content="{ close }">
-            <div class="player-base-header__menu-panel">
-              <button v-if="testToolsEnabled" class="player-base-header__menu-item" @click="handleOpenTestTools(close)">
+            <div v-if="testToolsEnabled" class="player-base-header__menu-panel">
+              <button class="player-base-header__menu-item" @click="handleOpenTestTools(close)">
                 <FlaskConical color="var(--theme-accent)" />
                 <span>Инструменты тестирования</span>
               </button>
@@ -198,6 +198,10 @@ const energyStr = computed(() => {
       font-weight: 600;
       color: var(--theme-accent);
     }
+  }
+
+  &_empty-menu &__avatar {
+    cursor: default;
   }
 
   &__menu-panel {
