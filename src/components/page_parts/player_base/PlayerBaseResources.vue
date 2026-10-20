@@ -14,7 +14,7 @@
       </div>
       <div class="resources-popup__group-grid">
         <div v-for="resItem in playerBaseStore.resourcesByPhase.solid" :key="resItem.id" class="resources-popup__group-resource">
-          <div class="resources-popup__group-resource-name">{{ resItem.name }}</div>
+          <ResourceInline class="resources-popup__group-resource-name" hide-icon :resource-id="resItem.id" />
           <div class="resources-popup__group-resource-value">{{ formatAmount(resItem.amount) }}</div>
         </div>
       </div>
@@ -32,7 +32,7 @@
       </div>
       <div class="resources-popup__group-grid">
         <div v-for="resItem in playerBaseStore.resourcesByPhase.liquid" :key="resItem.id" class="resources-popup__group-resource">
-          <div class="resources-popup__group-resource-name">{{ resItem.name }}</div>
+          <ResourceInline class="resources-popup__group-resource-name" hide-icon :resource-id="resItem.id" />
           <div class="resources-popup__group-resource-value">{{ formatAmount(resItem.amount) }}</div>
         </div>
       </div>
@@ -50,7 +50,7 @@
       </div>
       <div class="resources-popup__group-grid">
         <div v-for="resItem in playerBaseStore.resourcesByPhase.gas" :key="resItem.id" class="resources-popup__group-resource">
-          <div class="resources-popup__group-resource-name">{{ resItem.name }}</div>
+          <ResourceInline class="resources-popup__group-resource-name" hide-icon :resource-id="resItem.id" />
           <div class="resources-popup__group-resource-value">{{ formatAmount(resItem.amount) }}</div>
         </div>
       </div>
@@ -60,6 +60,7 @@
 
 <script lang="ts" setup>
 import UIProgressBar from "@/components/ui/UIProgressBar.vue";
+import ResourceInline from "@/components/ui/ResourceInline.vue";
 import { usePlayerBaseStore } from "@/stores/playerBaseStore";
 import { Box, Droplet, Wind } from "@lucide/vue";
 import { computed } from "vue";
@@ -152,10 +153,13 @@ $popup-bottom-gap: 1rem;
     white-space: nowrap;
   }
   &__group-resource-name {
+    flex: 1 1 auto;
+    min-width: 0;
     color: var(--font-secondary);
     font-weight: 500;
   }
   &__group-resource-value {
+    flex-shrink: 0;
     font-weight: 600;
     color: var(--font-primary);
   }

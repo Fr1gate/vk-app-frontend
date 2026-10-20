@@ -22,6 +22,17 @@ export interface BaseBuilding {
   level: number;
   /** @format date-time */
   will_upgrade_at: null | string;
+  /**
+   * Когда началось текущее улучшение — для прогресс-бара
+   * @format date-time
+   */
+  upgrade_started_at: null | string;
+  /** Длительность текущего улучшения, секунды */
+  upgrade_time_seconds: null | number;
+  /** Выработка здания с учётом солнца точки, МВт/ч */
+  power_generation_per_hour: number;
+  /** Спрос включённых линий здания, МВт/ч */
+  power_demand_per_hour: number;
 }
 
 export interface BuildingAvailable {
@@ -72,6 +83,7 @@ export interface StorageState {
 
 export interface PowerState {
   generation_per_hour: number;
+  /** Суммарный спрос только включённых линий */
   demand_per_hour: number;
 }
 
@@ -83,10 +95,13 @@ export interface ProductionLine {
   line_key: string;
   kind: "extraction" | "recipe";
   name: string;
+  /** Выключенная линия не производит и не потребляет энергию */
+  enabled: boolean;
   inputs: Record<string, number>;
   /** Выход за цикл с учётом богатства жилы */
   outputs: Record<string, number>;
   cycle_seconds: number;
+  energy_per_cycle: number;
   /**
    * Начало текущего цикла — для прогресс-бара
    * @format date-time
@@ -97,8 +112,8 @@ export interface ProductionLine {
    * @format date-time
    */
   next_cycle_at: null | string;
-  /** no_power — не хватило мощности (линия стоит весь интервал); no_input — нет входного сырья на складе */
-  status: "running" | "no_power" | "no_input";
+  /** no_power — не хватило мощности (линия стоит весь интервал); no_input — нет входного сырья на складе; disabled — выключена игроком */
+  status: "running" | "no_power" | "no_input" | "disabled";
   missing_inputs: string[];
   power_demand_per_hour: number;
 }
@@ -893,6 +908,46 @@ export class Api<
       }),
 
     /**
+     * @description Выключенная линия не производит, не потребляет сырьё и энергию. При включении цикл начинается заново.
+     *
+     * @tags bases
+     * @name BuildingsLinesToggleCreate
+     * @summary Включить или выключить линию производства
+     * @request POST:/bases/{siteId}/buildings/{buildingRowId}/lines/{lineKey}/toggle
+     * @secure
+     */
+    buildingsLinesToggleCreate: (
+      siteId: string,
+      buildingRowId: number,
+      lineKey: string,
+      data: {
+        enabled: boolean;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          building_id?: number;
+          line_key?: string;
+          enabled?: boolean;
+          /** @format date-time */
+          started_at?: string;
+        },
+        {
+          error?: string;
+          message?: string;
+        }
+      >({
+        path: `/bases/${siteId}/buildings/${buildingRowId}/lines/${lineKey}/toggle`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Очередь производства и список модулей, доступных к выпуску. У элемента очереди может быть `defect` — дефект незрелой технологии, выпавший при запуске цикла: `{ id, description, severity }`. Пока это только запись в журнале для показа: на срок и выпуск модуля дефект НЕ влияет (эффект ждёт учёных и полётов). Риск выпадения исчезает, когда технологию применили `resolvesAfterUses` раз.
      *
      * @tags facilities
@@ -1529,6 +1584,8 @@ export class Api<
               name: string;
               /** Английское имя (fallback для локалей) */
               name_en: null | string;
+              /** Описание ресурса для тултипа */
+              description: string;
               /** id типа топлива, если ресурс — топливо */
               is_fuel_type: null | string;
             }

@@ -1,26 +1,36 @@
 <template>
-  <div v-bind="$attrs" class="building-card">
-    <div class="building-card__tile">
-      <Component :is="icon" color="var(--font-primary)" />
-      <div v-if="!building.will_upgrade_at" class="building-card__pill"><ArrowUp color="#101318" /></div>
-    </div>
-    <div class="building-card__name">{{ building.name }}</div>
-    <div v-if="!building.will_upgrade_at" class="building-card__lvl">Ур. {{ building.level }}</div>
-    <div v-else class="building-card__progress">
-      <div class="building-card__time">{{ countdownString }}</div>
-      <UIProgressBar class="building-card__bar" :percent="remainingPercent" color="var(--theme-accent)" />
-      <div class="building-card__lvl">Ур. {{ building.level + 1 }}</div>
-    </div>
-  </div>
+  <UIModal ref="modalRef" unstyled>
+    <template #button>
+      <div v-bind="$attrs" class="building-card">
+        <div class="building-card__tile">
+          <Component :is="icon" color="var(--font-primary)" />
+          <div v-if="!building.will_upgrade_at" class="building-card__pill"><ArrowUp color="#101318" /></div>
+        </div>
+        <div class="building-card__name">{{ building.name }}</div>
+        <div v-if="!building.will_upgrade_at" class="building-card__lvl">Ур. {{ building.level }}</div>
+        <div v-else class="building-card__progress">
+          <div class="building-card__time">{{ countdownString }}</div>
+          <UIProgressBar class="building-card__bar" :percent="remainingPercent" color="var(--theme-accent)" />
+          <div class="building-card__lvl">Ур. {{ building.level + 1 }}</div>
+        </div>
+      </div>
+    </template>
+    <template #default>
+      <PlayerBaseProductionModal :building="building" @close="handleClose" />
+    </template>
+  </UIModal>
 </template>
 
 <script lang="ts" setup>
 import type { BaseBuilding } from "@/api/generated/types";
+import UIModal from "@/components/ui/UIModal.vue";
 import UIProgressBar from "@/components/ui/UIProgressBar.vue";
 import { getBuildingIconComponent } from "@/constants/BuildingIcon";
 import { usePlayerBaseStore } from "@/stores/playerBaseStore";
+import { formatCountdown } from "@/utils/formatCountdown";
 import { ArrowUp } from "@lucide/vue";
-import { computed, onUnmounted, ref, watch } from "vue";
+import { computed, onUnmounted, ref, useTemplateRef, watch } from "vue";
+import PlayerBaseProductionModal from "./PlayerBaseProductionModal.vue";
 
 const TIMER_UPDATE_INTERVAL = 200;
 
@@ -30,8 +40,13 @@ interface Props {
 
 const { building } = defineProps<Props>();
 
+const modalRef = useTemplateRef("modalRef");
 const baseStore = usePlayerBaseStore();
 const icon = computed(() => getBuildingIconComponent(building.kind));
+
+function handleClose() {
+  modalRef.value?.close();
+}
 
 const now = ref(Date.now());
 const timer = ref<ReturnType<typeof setInterval>>();
@@ -54,15 +69,7 @@ const remainingPercent = computed(() => {
   return (1 - remainingMs.value / ms) * 100;
 });
 
-const countdownString = computed(() => {
-  const totalSeconds = Math.ceil(remainingMs.value / 1000);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  return hours > 0
-    ? `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
-    : `${minutes}:${String(seconds).padStart(2, "0")}`;
-});
+const countdownString = computed(() => formatCountdown(remainingMs.value));
 </script>
 
 <style lang="scss" scoped>
@@ -76,7 +83,7 @@ const countdownString = computed(() => {
   align-content: flex-start;
   column-gap: 0.5rem;
   row-gap: 0.25rem;
-  width: 12.25rem;
+  width: var(--building-card-width, 12.25rem);
   padding: 0.375rem;
   justify-content: center;
   border-radius: 1.125rem;
@@ -175,7 +182,7 @@ const countdownString = computed(() => {
     align-items: center;
     align-content: center;
     gap: 0.5rem;
-    width: 10rem;
+    width: var(--building-card-width, 10rem);
     min-height: 9.25rem;
     padding: 0.5rem;
 

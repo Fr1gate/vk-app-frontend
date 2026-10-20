@@ -1,6 +1,7 @@
 <template>
   <div class="app">
     <router-view />
+    <UIToast />
     <div class="orientation-guard">
       <Smartphone class="orientation-guard__icon" color="var(--theme-accent)" />
       <div class="orientation-guard__text">Поверните устройство горизонтально</div>
@@ -10,6 +11,7 @@
 
 <script setup lang="ts">
 import { ROUTES_NAMES } from "@/constants/RoutesNames";
+import UIToast from "@/components/ui/UIToast.vue";
 import router from "@/router";
 import { vkInit } from "@/services/vk/vkInit";
 import { Smartphone } from "@lucide/vue";

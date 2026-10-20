@@ -1,12 +1,12 @@
 <template>
-  <div ref="button" class="dropdown__button" @click="toggle">
+  <div ref="button" class="dropdown__button" @click="handleClick" @pointerenter="handlePointerEnter" @pointerleave="handlePointerLeave">
     <slot name="button"></slot>
+    <Teleport to="body">
+      <div ref="body" v-show="isShowed" class="dropdown__content" :style="contentStyles">
+        <slot name="content" :close="close"></slot>
+      </div>
+    </Teleport>
   </div>
-  <Teleport to="body">
-    <div ref="body" v-show="isShowed" class="dropdown__content" :style="contentStyles">
-      <slot name="content" :close="close"></slot>
-    </div>
-  </Teleport>
 </template>
 
 <script lang="ts" setup>
@@ -15,14 +15,19 @@ import { onMounted, onUnmounted, reactive, ref, useTemplateRef, watch } from "vu
 
 interface Props {
   align?: "left" | "center" | "right";
+  trigger?: "click" | "hover";
+  // should body width match trigger's width
+  matchTriggerWidth?: boolean;
 }
 
-const { align = "left" } = defineProps<Props>();
+const { align = "left", trigger = "click", matchTriggerWidth = true } = defineProps<Props>();
 
 const OFFSET = 2;
 const VIEWPORT_MARGIN = 8;
 
 const isShowed = ref(false);
+// click on trigger pins body
+const isPinned = ref(false);
 const refButton = useTemplateRef("button");
 const refBody = useTemplateRef("body");
 const contentStyles = reactive({
@@ -46,24 +51,52 @@ watch(isShowed, (opened) => {
 
 onUnmounted(() => window.removeEventListener("resize", calculatePosition));
 
-function toggle() {
+function open() {
   calculatePosition();
-  isShowed.value = !isShowed.value;
+  isShowed.value = true;
 }
 
 function close() {
   isShowed.value = false;
 }
 
+function toggle() {
+  if (isShowed.value) close();
+  else open();
+}
+
+function handleClick() {
+  if (trigger === "hover") {
+    isPinned.value = !isPinned.value;
+    if (isPinned.value) open();
+    else close();
+    return;
+  }
+  toggle();
+}
+
+function handlePointerEnter(event: PointerEvent) {
+  if (trigger !== "hover" || event.pointerType !== "mouse") return;
+  open();
+}
+
+function handlePointerLeave(event: PointerEvent) {
+  if (trigger !== "hover" || event.pointerType !== "mouse" || isPinned.value) return;
+  close();
+}
+
 onClickOutside(
   refBody,
   () => {
+    isPinned.value = false;
     close();
   },
   {
     ignore: [refButton],
   },
 );
+
+defineExpose({ open, close, toggle });
 
 watch(() => align, resetStyles);
 
@@ -90,7 +123,7 @@ function calculatePosition() {
   contentStyles.top = openAbove ? "unset" : `${rect.bottom + OFFSET}px`;
   contentStyles.bottom = openAbove ? `${window.innerHeight - rect.top + OFFSET}px` : "unset";
   contentStyles["max-height"] = `${Math.max(0, openAbove ? spaceAbove : spaceBelow)}px`;
-  contentStyles["min-width"] = `${rect.width}px`;
+  contentStyles["min-width"] = matchTriggerWidth ? `${rect.width}px` : "0px";
 
   switch (align) {
     case "left": {

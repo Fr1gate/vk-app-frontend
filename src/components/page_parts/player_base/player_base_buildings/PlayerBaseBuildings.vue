@@ -108,6 +108,11 @@ watch(
 
 <style lang="scss" scoped>
 .buildings {
+  --building-card-width: 12.25rem;
+  --building-card-gap: 0.5rem;
+  --build-button-width: 3.5rem;
+  --carousel-arrow-size: 2.75rem;
+
   display: flex;
   justify-content: center;
   width: 100vw;
@@ -119,14 +124,14 @@ watch(
     display: flex;
     min-width: 0;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--building-card-gap);
   }
 
   &__arrow-button {
     box-sizing: border-box;
     flex-shrink: 0;
-    width: 2.75rem;
-    height: 2.75rem;
+    width: var(--carousel-arrow-size);
+    height: var(--carousel-arrow-size);
     background: var(--theme-nav-fill);
     border: 1px solid var(--theme-stroke);
     border-radius: 100%;
@@ -159,8 +164,8 @@ watch(
 .embla__slide {
   display: flex;
   min-width: 0;
-  flex: 0 0 12.25rem;
-  margin-right: 0.5rem;
+  flex: 0 0 var(--building-card-width);
+  margin-right: var(--building-card-gap);
 
   &:last-child {
     margin-right: 0;
@@ -168,9 +173,10 @@ watch(
 }
 
 @media (min-height: 450px) {
-  .embla__slide {
-    flex: 0 0 9.5rem;
-    margin-right: 1rem;
+  .buildings {
+    --building-card-width: 10rem;
+    --building-card-gap: 1rem;
+    --build-button-width: 9.5rem;
   }
 }
 </style>

@@ -71,6 +71,7 @@ import { getBuildingIconComponent } from "@/constants/BuildingIcon";
 import { getResourceColor, getResourceIconComponent } from "@/constants/ResourceIcon";
 import { useGameDictionaryStore } from "@/stores/gameDictionaryStore";
 import { usePlayerBaseStore } from "@/stores/playerBaseStore";
+import { getBuildingPortrait } from "@/utils/buildingPortrait";
 import { formatAmount } from "@/utils/formatAmount";
 import { Plus, X } from "@lucide/vue";
 import { computed, ref, useTemplateRef, watch } from "vue";
@@ -85,21 +86,7 @@ const selectedBuilding = ref<null | BuildingAvailable>(null);
 const gameDictionaryStore = useGameDictionaryStore();
 const baseStore = usePlayerBaseStore();
 
-const portraitByBuildingId = import.meta.glob("/src/assets/buildings/*.webp", {
-  eager: true,
-  import: "default",
-}) as Record<string, string>;
-
-const DEFAULT_PORTRAIT = "/src/assets/buildings/bld_default.webp";
-
-const portraitUrl = computed(() => {
-  const buildingId = selectedBuilding.value?.building_id;
-  return (
-    (buildingId ? portraitByBuildingId[`/src/assets/buildings/${buildingId}.webp`] : undefined) ??
-    portraitByBuildingId[DEFAULT_PORTRAIT] ??
-    ""
-  );
-});
+const portraitUrl = computed(() => getBuildingPortrait(selectedBuilding.value?.building_id ?? ""));
 
 const constructibleBuildings = computed(() =>
   availableBuildings.filter(
@@ -181,7 +168,7 @@ $modal-max-width: calc(100vw - #{$modal-padding * 2 + $modal-edge-gap * 2});
   justify-content: center;
   flex-shrink: 0;
   box-sizing: border-box;
-  width: 3.5rem;
+  width: var(--build-button-width, 3.5rem);
   height: 3.5rem;
   border-radius: 100%;
   background: radial-gradient(var(--theme-grad-a), var(--theme-grad-b));
@@ -212,7 +199,7 @@ $modal-max-width: calc(100vw - #{$modal-padding * 2 + $modal-edge-gap * 2});
 @media (min-height: 450px) {
   .new-building {
     gap: 0.5rem;
-    width: 9.5rem;
+    width: var(--build-button-width, 9.5rem);
     height: 9.25rem;
     padding: 0.5rem;
     border-radius: 1.125rem;

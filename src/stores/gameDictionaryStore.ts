@@ -16,11 +16,15 @@ export const useGameDictionaryStore = defineStore("gameDictionary", () => {
   function getResourceName(id: string) {
     return resources.value?.[id]?.name ?? id;
   }
+  function getResourceDescription(id: string) {
+    return resources.value?.[id]?.description ?? "";
+  }
 
   return {
     isLoading,
     dictionary,
     getResourceName,
+    getResourceDescription,
     loadData,
   };
 });

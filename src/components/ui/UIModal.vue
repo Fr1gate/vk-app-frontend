@@ -4,7 +4,7 @@
   </div>
   <Teleport to="body">
     <div v-show="isOpened" class="modal__overlay">
-      <div ref="modal" class="modal">
+      <div ref="modal" class="modal" :class="{ modal_unstyled: unstyled }">
         <slot />
       </div>
     </div>
@@ -18,9 +18,10 @@ import { ref, useTemplateRef } from "vue";
 interface Props {
   showOnStart?: boolean;
   preventClose?: boolean;
+  unstyled?: boolean;
 }
 
-const { showOnStart = false, preventClose = false } = defineProps<Props>();
+const { showOnStart = false, preventClose = false, unstyled = false } = defineProps<Props>();
 
 const isOpened = ref(showOnStart);
 const modalRef = useTemplateRef("modal");
@@ -68,5 +69,12 @@ defineExpose({
   border-radius: var(--radius-lg);
 
   z-index: 11;
+
+  &_unstyled {
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+  }
 }
 </style>
