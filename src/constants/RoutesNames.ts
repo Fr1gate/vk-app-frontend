@@ -8,6 +8,7 @@ export const ROUTES_NAMES = {
   PLAYER_BASE: {
     HOME: {
       BUILDINGS: "player-base-home-buildings",
+      SPACE: "player-base-home-space",
       MARKETS: "player-base-home-market",
       RESEARCH: "player-base-home-research",
       CONTRACTS: "player-base-home-contracts",

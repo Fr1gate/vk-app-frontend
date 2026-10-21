@@ -66,6 +66,13 @@
         class="player-base-header__sub-menu-item"
         >Исследования</router-link
       >
+      <router-link
+        :to="{
+          name: ROUTES_NAMES.PLAYER_BASE.HOME.SPACE,
+        }"
+        class="player-base-header__sub-menu-item"
+        >Космос</router-link
+      >
       <div class="player-base-header__sub-menu-item">Рынок</div>
       <div class="player-base-header__sub-menu-item">Контракты</div>
     </div>

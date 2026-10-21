@@ -18,8 +18,11 @@
   },
   "dependencies": {
     "@lucide/vue": "^1.33.0",
+    "@svgdotjs/svg.js": "^3.2.8",
+    "@svgdotjs/svg.panzoom.js": "^2.1.3",
     "@types/lodash-es": "^4.17.12",
     "@vkontakte/vk-bridge": "^3.0.2",
+    "@vuepic/vue-datepicker": "^14.0.0",
     "@vueuse/core": "^14.4.0",
     "axios": "^1.19.0",
     "embla-carousel": "^8.6.0",

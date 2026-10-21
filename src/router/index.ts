@@ -51,6 +51,11 @@ const router = createRouter({
                   component: () => import("@/pages/player_base/player_base_tabs/PlayerBaseTabResearch.vue"),
                   path: "research",
                 },
+                {
+                  name: ROUTES_NAMES.PLAYER_BASE.HOME.SPACE,
+                  component: () => import("@/pages/player_base/player_base_tabs/PlayerBaseTabSpace.vue"),
+                  path: "space",
+                },
                 // {
                 //   name: ROUTES_NAMES.PLAYER_BASE.HOME.MARKETS,
                 //   component: () => import("@/pages/player_base/PlayerBasePage.vue"),
