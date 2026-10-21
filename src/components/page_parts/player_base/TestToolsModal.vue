@@ -81,7 +81,7 @@ const resourceOptions = computed(() =>
       iconColor: getResourceColor(kind),
       kind,
     })),
-  ),
+  ).sort((a, b) => a.label.localeCompare(b.label, "ru")),
 );
 
 const resourcesAmountValue = computed(() => Math.trunc(Number(resourcesAmount.value)) || 0);

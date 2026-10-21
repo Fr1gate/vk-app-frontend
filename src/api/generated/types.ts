@@ -31,7 +31,9 @@ export interface BaseBuilding {
   upgrade_time_seconds: null | number;
   /** Выработка здания с учётом солнца точки, МВт/ч */
   power_generation_per_hour: number;
-  /** Спрос включённых линий здания, МВт/ч */
+  /** Выработка на следующем уровне (null, если её нет) */
+  next_level_power_generation_per_hour: null | number;
+  /** Спрос включённых линий здания с учётом доступной мощности, МВт/ч */
   power_demand_per_hour: number;
 }
 

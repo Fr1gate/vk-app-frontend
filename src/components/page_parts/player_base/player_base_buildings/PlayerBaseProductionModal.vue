@@ -171,11 +171,10 @@ onUnmounted(() => clearInterval(timer));
 
 const productionLines = computed(() => baseStore.base?.production.lines.filter((line) => line.building_id === building.id) ?? []);
 
-const power = computed(() =>
-  building.power_generation_per_hour > 0
-    ? building.power_generation_per_hour
-    : -building.power_demand_per_hour,
-);
+const power = computed(() => {
+  const generation = building.next_level_power_generation_per_hour ?? building.power_generation_per_hour;
+  return generation > 0 ? generation : -building.power_demand_per_hour;
+});
 const showPower = computed(() => power.value !== 0);
 const powerText = computed(() => `${power.value > 0 ? "+" : "−"}${formatAmount(Math.abs(power.value))} МВт/ч`);
 
