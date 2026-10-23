@@ -20,7 +20,7 @@
           :enable-time-picker="true"
           :is-24="true"
           :dark="true"
-          :year-range="[-1000, 4000]"
+          :year-range="[1900, 2200]"
           :action-row="{ selectBtnLabel: 'Выбрать', cancelBtnLabel: 'Отмена', showNow: false, showPreview: false }"
           week-start="1"
           @update:model-value="updateDate"
@@ -194,5 +194,52 @@ function updateDate(value: Date | number | null) {
 :deep(.dp--action-select) {
   color: var(--font-inverse);
   background: var(--theme-accent);
+}
+
+@media (max-height: 500px) {
+  .space-time {
+    backdrop-filter: none;
+  }
+
+  :deep(.dp--menu-wrapper) {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw !important;
+    height: 100vh !important;
+    transform: none !important;
+    background: #00000080;
+  }
+
+  :deep(.dp--arrow-top),
+  :deep(.dp--arrow-bottom) {
+    display: none;
+  }
+
+  :deep(.dp--menu) {
+    --dp-cell-size: 28px;
+    --dp-cell-padding: 2px;
+    --dp-calendar-header-cell-padding: 3px;
+    --dp-row-margin: 1px 0;
+    --dp-month-year-row-height: 28px;
+    --dp-button-height: 28px;
+    --dp-button-icon-height: 16px;
+    --dp-menu-padding: 4px 6px;
+    --dp-action-row-padding: 4px 6px;
+    --dp-action-button-height: 24px;
+    --dp-font-size: 14px;
+    --dp-time-inc-dec-button-size: 24px;
+    --dp-time-font-size: 1.5rem;
+    --dp-overlay-col-padding: 2px;
+    width: 17rem;
+    max-height: calc(100vh - 1.5rem);
+  }
+
+  :deep(.dp--overlay-container) {
+    max-height: 100%;
+  }
 }
 </style>

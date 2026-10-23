@@ -30,7 +30,6 @@ onBeforeUnmount(() => {
 .space-tab {
   position: absolute;
   inset: 0;
-  z-index: 0;
   display: flex;
 }
 </style>

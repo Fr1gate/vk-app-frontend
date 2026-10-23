@@ -18,7 +18,7 @@ import { useSpaceTime } from "./spaceTime";
 import UISearch from "@/components/ui/UISearch.vue";
 import { onBeforeUnmount, onMounted, useTemplateRef, watch } from "vue";
 
-const AU_TO_PX = 320;
+const AU_TO_PX = 1000;
 const PLANET_ICON_SIZE = 44;
 const SUN_ICON_SIZE = 120;
 const PLANET_LABEL_OFFSET = 12;
@@ -27,10 +27,7 @@ const SUN_LABEL_OFFSET = 72;
 const { gameTime } = useSpaceTime();
 
 const canvasHost = useTemplateRef("canvasHost");
-const searchItems = [
-  { id: SUN.id, label: SUN.name },
-  ...PLANETS.map((planet) => ({ id: planet.id, label: planet.name })),
-];
+const searchItems = [{ id: SUN.id, label: SUN.name }, ...PLANETS.map((planet) => ({ id: planet.id, label: planet.name }))];
 
 const center = { x: 0, y: 0 };
 const planetElements = new Map<PlanetId, { icon: Svg; label: SvgText }>();
@@ -179,7 +176,7 @@ function handleSelect(id: string) {
     top: 6rem;
     left: 0;
     right: 0;
-    z-index: 2;
+    z-index: 3;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
